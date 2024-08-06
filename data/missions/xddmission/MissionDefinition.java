@@ -9,6 +9,7 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.mission.MissionDefinitionAPI;
 import com.fs.starfarer.api.mission.MissionDefinitionPlugin;
+import santomon.ImpossibleGame.ImpossibleGameLevelPlugin;
 
 public class MissionDefinition implements MissionDefinitionPlugin {
 
@@ -60,14 +61,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 			api.addNebula(x, y, radius);
 		}
 		
-		api.addPlugin(new BaseEveryFrameCombatPlugin() {
-			public void init(CombatEngineAPI engine) {
-				engine.getContext().setStandoffRange(6000f);
-			}
-			public void advance(float amount, List events) {
-			}
-		});
-		
+		api.addPlugin(new ImpossibleGameLevelPlugin());
 	}
 
 }
