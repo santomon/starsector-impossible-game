@@ -1,6 +1,5 @@
 package data.missions.xddmission
 
-import java.util.List
 
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin
 import com.fs.starfarer.api.combat.CombatEngineAPI
