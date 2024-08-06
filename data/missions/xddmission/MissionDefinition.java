@@ -60,10 +60,6 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 			api.addNebula(x, y, radius);
 		}
 		
-		// Add an asteroid field
-		api.addAsteroidField(minX + width/2f, minY + height/2f, 0, 8000f,
-								20f, 70f, 100);
-		
 		api.addPlugin(new BaseEveryFrameCombatPlugin() {
 			public void init(CombatEngineAPI engine) {
 				engine.getContext().setStandoffRange(6000f);
