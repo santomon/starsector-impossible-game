@@ -59,39 +59,20 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 			float radius = 100f + (float) Math.random() * 400f; 
 			api.addNebula(x, y, radius);
 		}
-		
-		api.addPlugin(new ImpossibleGameLevelPlugin());
 
-		int[][] data = loadLevelData("xdd");
-		for (int i = 0; i < data.length; i++) {
-			for (int j = 0; j < data[i].length; j++) {
-				System.out.print(data[i][j] + " ");
-			}
-			System.out.println();
-		}
+		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin();
+		api.addPlugin(plugin);
 
-
-	}
-	public int[][] loadLevelData(String levelName){
-		try{
-			String levelDataRaw = Global.getSettings().loadText("data/missions/"+levelName+"/level_data.txt");
-			String[] Q = levelDataRaw.split("\n");
-			String firstRow = Q[0].endsWith(",") ? Q[0].substring(0, Q[0].length()-1) : Q[0];
-			int[][] data = new int[Q.length][firstRow.split(",").length];
-
-            for (int i = 0; i < Q.length; i++) {
-				String charactersTMP = Q[i].endsWith(",") ? Q[i].substring(0, Q[i].length()-1) : Q[i];
-				String[] characters = charactersTMP.split(",");
-				for (int j = 0; j < characters.length; j++) {
-					data[i][j] = Integer.parseInt(characters[j]);
-				}
+		int[][] data = ImpossibleGameLevelPlugin.loadLevelData("xdd");
+        for (int[] datum : data) {
+            for (int i : datum) {
+                System.out.print(i + " ");
             }
-			return data;
-		} catch (Exception e){
-			throw new RuntimeException("Failed to load level data", e);
-		}
-	}
+            System.out.println();
+        }
 
+
+	}
 
 }
 
