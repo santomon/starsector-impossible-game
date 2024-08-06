@@ -51,12 +51,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		float height = 18000f;
 		api.initMap((float)-width/2f, (float)width/2f, (float)-height/2f, (float)height/2f);
 		
-		float minX = -width/2;
-		float minY = -height/2;
-		
-		api.addNebula(minX + width * 0.5f - 300, minY + height * 0.5f, 1000);
-		api.addNebula(minX + width * 0.5f + 300, minY + height * 0.5f, 1000);
-		
+
+
 		for (int i = 0; i < 5; i++) {
 			float x = (float) Math.random() * width - width/2;
 			float y = (float) Math.random() * height - height/2;
@@ -65,6 +61,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		}
 		
 		api.addPlugin(new ImpossibleGameLevelPlugin());
+
 		int[][] data = loadLevelData("xdd");
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].length; j++) {
