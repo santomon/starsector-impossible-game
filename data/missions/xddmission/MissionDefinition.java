@@ -11,6 +11,7 @@ import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.mission.MissionDefinitionAPI;
 import com.fs.starfarer.api.mission.MissionDefinitionPlugin;
 import org.json.JSONObject;
+import org.lwjgl.Sys;
 import santomon.ImpossibleGame.ImpossibleGameLevelPlugin;
 
 public class MissionDefinition implements MissionDefinitionPlugin {
@@ -65,6 +66,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		
 		api.addPlugin(new ImpossibleGameLevelPlugin());
 		int[][] data = loadLevelData("xdd");
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[i].length; j++) {
+				System.out.print(data[i][j] + " ");
+			}
+			System.out.println();
+		}
 
 
 	}
@@ -72,16 +79,20 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		try{
 			String levelDataRaw = Global.getSettings().loadText("data/missions/xddmission/"+levelName+".txt");
 			String[] Q = levelDataRaw.split("\n");
-            for (String s : Q) {
-				String[] characters = s.split(",");
-				for (String c : characters) {
-					System.out.println(c);
+			String firstRow = Q[0].endsWith(",") ? Q[0].substring(0, Q[0].length()-1) : Q[0];
+			int[][] data = new int[Q.length][firstRow.split(",").length];
+
+            for (int i = 0; i < Q.length; i++) {
+				String charactersTMP = Q[i].endsWith(",") ? Q[i].substring(0, Q[i].length()-1) : Q[i];
+				String[] characters = charactersTMP.split(",");
+				for (int j = 0; j < characters.length; j++) {
+					data[i][j] = Integer.parseInt(characters[j]);
 				}
             }
+			return data;
 		} catch (Exception e){
 			throw new RuntimeException("Failed to load level data", e);
 		}
-		return null;
 	}
 
 
