@@ -1,0 +1,13 @@
+{
+    "id":"santomonImpossibleGame",
+	"name":"Impossible Game",
+	"author":"santomon",
+    "utility":"false",
+	"version":"0.0.1",
+	"description":"Play The Levels of Impossible Game as Starsector Missions!",
+    "gameVersion": "0.97a-RC6",
+  	"jars":["jars/ImpossibleGame.jar"],
+  	"modPlugin":"santomon.ImpossibleGame.ImpossibleGameModPlugin",
+	  	"dependencies": [
+    ]
+}
