@@ -77,7 +77,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 	}
 	public int[][] loadLevelData(String levelName){
 		try{
-			String levelDataRaw = Global.getSettings().loadText("data/missions/xddmission/"+levelName+".txt");
+			String levelDataRaw = Global.getSettings().loadText("data/missions/"+levelName+"/level_data.txt");
 			String[] Q = levelDataRaw.split("\n");
 			String firstRow = Q[0].endsWith(",") ? Q[0].substring(0, Q[0].length()-1) : Q[0];
 			int[][] data = new int[Q.length][firstRow.split(",").length];
