@@ -1,4 +1,4 @@
-package missions.xddmission;
+package data.missions.xddmission;
 
 import java.util.List;
 
