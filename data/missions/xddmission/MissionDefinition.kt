@@ -76,7 +76,7 @@ class MissionDefinition: MissionDefinitionPlugin {
     }
 
         // Add an asteroid field
-        api.addAsteroidField(minX + width/2f, minY + height/2f, 0f, 8000f,
+        api.addAsteroidField(minX + width/2f, minY + height/2f, 0, 8000f,
             20f, 70f, 100);
 
         api.addPlugin(object : BaseEveryFrameCombatPlugin() {
