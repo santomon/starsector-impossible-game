@@ -29,9 +29,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		// These show up as items in the bulleted list under 
 		// "Tactical Objectives" on the mission detail screen
 		api.addBriefingItem("Defeat all enemy forces");
-		api.addBriefingItem("Use Sabot SRMs to overload tough targets before finishing them off with Reaper torpedos");
-		api.addBriefingItem("Remember: Your armor can safely absorb hits from anti-fighter missiles");
-		
+
 		// Set up the player's fleet.  Variant names come from the
 		// files in data/variants and data/variants/fighters
 		//api.addToFleet(FleetSide.PLAYER, "harbinger_Strike", FleetMemberType.SHIP, "TTS Invisible Hand", true, CrewXPLevel.VETERAN);
@@ -42,19 +40,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		api.defeatOnShipLoss("TTS Invisible Hand");
 		
 		// Set up the enemy fleet.
-		//api.addToFleet(FleetSide.ENEMY, "mule_Standard", FleetMemberType.SHIP, false);
-		//api.addToFleet(FleetSide.ENEMY, "tarsus_Standard", FleetMemberType.SHIP, false);
-		//api.addToFleet(FleetSide.ENEMY, "buffalo2_FS", FleetMemberType.SHIP, false);
-		api.addToFleet(FleetSide.ENEMY, "kite_hegemony_Interceptor", FleetMemberType.SHIP, false);
-		api.addToFleet(FleetSide.ENEMY, "kite_hegemony_Interceptor", FleetMemberType.SHIP, false);
-		
 		api.addToFleet(FleetSide.ENEMY, "enforcer_Elite", FleetMemberType.SHIP, "HSS Judicature", true);
-		api.addToFleet(FleetSide.ENEMY, "enforcer_Assault", FleetMemberType.SHIP, "HSS Executor", false);
-		api.addToFleet(FleetSide.ENEMY, "lasher_CS", FleetMemberType.SHIP, false);
-		api.addToFleet(FleetSide.ENEMY, "lasher_CS", FleetMemberType.SHIP, false);
-		
-		api.addToFleet(FleetSide.ENEMY, "condor_Strike", FleetMemberType.SHIP, false);
-		
+
 		// Set up the map.
 		float width = 24000f;
 		float height = 18000f;
