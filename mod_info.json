@@ -7,7 +7,7 @@
 	"description":"Play The Levels of Impossible Game as Starsector Missions!",
     "gameVersion": "0.97a-RC6",
   	"jars":["jars/ImpossibleGame.jar"],
-  	"modPlugin":"author.modname.TemplateModPlugin",
+  	"modPlugin":"santomon.ImpossibleGame.ImpossibleGameModPlugin",
 	  	"dependencies": [
         #{
         #    "id": "lw_lazylib",
