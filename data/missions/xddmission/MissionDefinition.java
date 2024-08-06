@@ -2,6 +2,7 @@ package data.missions.xddmission;
 
 import java.util.List;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.fleet.FleetGoal;
@@ -9,6 +10,7 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.mission.MissionDefinitionAPI;
 import com.fs.starfarer.api.mission.MissionDefinitionPlugin;
+import org.json.JSONObject;
 import santomon.ImpossibleGame.ImpossibleGameLevelPlugin;
 
 public class MissionDefinition implements MissionDefinitionPlugin {
@@ -62,7 +64,26 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		}
 		
 		api.addPlugin(new ImpossibleGameLevelPlugin());
+		int[][] data = loadLevelData("xdd");
+
+
 	}
+	public int[][] loadLevelData(String levelName){
+		try{
+			String levelDataRaw = Global.getSettings().loadText("data/missions/xddmission/"+levelName+".txt");
+			String[] Q = levelDataRaw.split("\n");
+            for (String s : Q) {
+				String[] characters = s.split(",");
+				for (String c : characters) {
+					System.out.println(c);
+				}
+            }
+		} catch (Exception e){
+			throw new RuntimeException("Failed to load level data", e);
+		}
+		return null;
+	}
+
 
 }
 
