@@ -5,7 +5,9 @@ import java.util.List;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.fleet.FleetGoal;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.mission.MissionDefinitionAPI;
@@ -35,28 +37,21 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		// These show up as items in the bulleted list under 
 		// "Tactical Objectives" on the mission detail screen
 		api.addBriefingItem("Defeat all enemy forces");
-		api.defeatOnShipLoss("TTS Invisible Hand");
-		
+
 		// Set up the enemy fleet.
-		api.addToFleet(FleetSide.ENEMY, "enforcer_Elite", FleetMemberType.SHIP, "HSS Judicature", true);
+//		api.addToFleet(FleetSide.ENEMY, "enforcer_Elite", FleetMemberType.SHIP, "HSS Judicature", true);
+		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "hermes_xdd", FleetMemberType.SHIP, "xdd Cain", true);
+		CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+		ShipAPI ship = combatEngineAPI.getPlayerShip();
+
 
 		// Set up the map.
 		float width = 4000f;
 		float height = 4000f;
 		api.initMap(-width/2f, width/2f, -height/2f, height/2f);
 
-		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin();
+		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin("xddmission");
 		api.addPlugin(plugin);
-
-		int[][] data = ImpossibleGameLevelPlugin.loadLevelData("xdd");
-        for (int[] datum : data) {
-            for (int i : datum) {
-                System.out.print(i + " ");
-            }
-            System.out.println();
-        }
-
-
 	}
 
 }

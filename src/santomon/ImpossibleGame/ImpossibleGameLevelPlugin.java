@@ -1,19 +1,30 @@
 package santomon.ImpossibleGame;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
-import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.EveryFrameCombatPlugin;
-import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
 
 import java.util.List;
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
+    public int[][] levelData;
+
+    public ImpossibleGameLevelPlugin(String levelName) {
+        System.out.println("ImpossibleGameLevelPlugin constructor");
+        this.levelData = loadLevelData(levelName);
+    }
+
+
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
-//        System.out.println("ImpossibleGameLevelPlugin advance");
+        if (!hasCalledFakeInit){
+            fakeInit(Global.getCombatEngine());
+            hasCalledFakeInit = true;
+        }
+
+        System.out.println("ImpossibleGameLevelPlugin advance");
+
 
     }
 
@@ -21,6 +32,16 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public void init(CombatEngineAPI engine) {
 //        System.out.println("ImpossibleGameLevelPlugin init");
     }
+
+    public Boolean hasCalledFakeInit = false;
+    public void fakeInit(CombatEngineAPI engine) {
+        System.out.println("ImpossibleGameLevelPlugin fakeInit");
+        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+        ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(this.levelData);
+        playerShip.addListener(impossibleGameEngine);
+
+    }
+
 
 
     public static int[][] loadLevelData(String levelName){
@@ -40,6 +61,15 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             return data;
         } catch (Exception e){
             throw new RuntimeException("Failed to load level data", e);
+        }
+    }
+    public static void showLevelData(int[][] levelData){
+
+        for (int[] row : levelData) {
+            for (int i : row) {
+                System.out.print(i + " ");
+            }
+            System.out.println();
         }
     }
 

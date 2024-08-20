@@ -1,0 +1,19 @@
+{
+    "displayName": "ImpossibleGame Hermes",
+    "fluxCapacitors": 9,
+    "fluxVents": 9,
+    "hullId": "hermes",
+    "hullMods": ["missleracks"],
+    "permaMods": ["missleracks"],
+    "quality": 0,
+    "variantId": "hermes_xdd",
+    "weaponGroups": [{
+        "autofire": true,
+        "mode": "LINKED",
+        "weapons": {
+            "WS 001": "lightmg",
+            "WS 002": "lightmg",
+            "WS 003": "lightmg"
+        }
+    }]
+}
