@@ -2,10 +2,9 @@
     "displayName": "Impossible",
     "fluxCapacitors": 6,
     "fluxVents": 6,
-    "goalVariant": true,
     "hullId": "defender",
-    "hullMods": ["missileracks"],
-    "permaMods": ["missileracks"],
+    "hullMods": ["missleracks"],
+    "permaMods": ["missleracks"],
     "quality": 0,
     "variantId": "defender_ImpossibleGame",
     "weaponGroups": [{

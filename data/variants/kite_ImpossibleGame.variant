@@ -4,8 +4,8 @@
     "fluxVents": 6,
     "goalVariant": true,
     "hullId": "kite",
-    "hullMods": ["missileracks"],
-    "permaMods": ["missileracks"],
+    "hullMods": ["missleracks"],
+    "permaMods": ["missleracks"],
     "sMods": [],
     "variantId": "kite_ImpossibleGame",
     "weaponGroups": [
