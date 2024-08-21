@@ -9,10 +9,16 @@ import java.util.List;
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public int[][] levelData;
+    public float mapSizeX;
+    public float mapSizeY;
 
-    public ImpossibleGameLevelPlugin(String levelName) {
+
+    public ImpossibleGameLevelPlugin(String levelName, float mapSizeX, float mapSizeY) {
+
         System.out.println("ImpossibleGameLevelPlugin constructor");
         this.levelData = loadLevelData(levelName);
+        this.mapSizeX = mapSizeX;
+        this.mapSizeY = mapSizeY;
     }
 
 
@@ -37,7 +43,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
-        ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(this.levelData);
+        ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(this.levelData, this.mapSizeX, this.mapSizeY);
         playerShip.addListener(impossibleGameEngine);
 
     }

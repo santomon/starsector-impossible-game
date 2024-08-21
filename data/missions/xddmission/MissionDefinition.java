@@ -50,7 +50,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		float height = 4000f;
 		api.initMap(-width/2f, width/2f, -height/2f, height/2f);
 
-		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin("xddmission");
+		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin("xddmission", width, height);
 		api.addPlugin(plugin);
 	}
 
