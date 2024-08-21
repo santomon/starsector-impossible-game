@@ -17,4 +17,11 @@ public class IGMisc {
 
         return transposedMatrix;
     }
+
+
+    public static class Constants {
+        public static final String IG_DEFENDER_VARIANT_ID = "defender_ImpossibleGame";
+        public static final String IG_KITE_VARIANT_ID = "kite_ImpossibleGame";
+        public static final String IG_HERMES_VARIANT_ID = "hermes_ImpossibleGame";
+    }
 }

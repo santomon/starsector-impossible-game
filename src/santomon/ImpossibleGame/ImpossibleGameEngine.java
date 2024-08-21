@@ -3,6 +3,7 @@ package santomon.ImpossibleGame;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
+import data.missions.xddmission.IGMisc;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,8 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     public final float objectVelocity = 10f;
     public final HashMap<Integer, String> objectLookUpTable = new HashMap<Integer, String>() {{
         put(0, null);
-        put(1, "");  // spikes
+        put(1, IGMisc.Constants.IG_DEFENDER_VARIANT_ID);  // block
+        put(2, IGMisc.Constants.IG_KITE_VARIANT_ID);  // spikes
     }
     };
 
