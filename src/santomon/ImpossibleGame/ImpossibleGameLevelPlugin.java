@@ -29,10 +29,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             fakeInit(Global.getCombatEngine());
             hasCalledFakeInit = true;
         }
-
-        System.out.println("ImpossibleGameLevelPlugin advance");
-
-
     }
 
     @Override

@@ -24,7 +24,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
 
 
     public static final float spawnInterval = 1f;
-    public static final float objectVelocity = 20f;
+    public static final float objectVelocity = 1000f;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
     public static final float tileSize = 128f;  // kite has  a collision radius of 64
@@ -52,6 +52,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
         if (currentSecondStack >= spawnInterval) {
             currentSecondStack = 0;
             spawnColumn(this.levelData, this.currentLevelStage, this.mapSizeX, this.mapSizeY);
+            this.currentLevelStage += 1;
         }
     }
 
@@ -64,15 +65,17 @@ public class ImpossibleGameEngine implements AdvanceableListener {
         for (int i = 0; i < columnSize; i++) {
             String entityID = objectLookUpTable.get(levelData[currentLevelStage][i]);
             if (entityID != null) {
+                System.out.println("Spawning Entity: " + entityID);
                 Vector2f spawnPosition = calculateSpawnPosition(i, mapSizeX, mapSizeY);
-                ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, -90f);
+                ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
                 entity.getVelocity().set(- objectVelocity, 0);
+                entity.makeLookDisabled();
             }
         }
     }
 
     public static Vector2f calculateSpawnPosition(int i, float mapSizeX, float mapSizeY) {
-        float Y = - mapSizeY / 2f + topPadding + i * tileSize;
+        float Y = mapSizeY / 2f - topPadding - i * tileSize;
         float X = mapSizeX / 2f - rightPadding;
         return new Vector2f(X, Y);
     }
