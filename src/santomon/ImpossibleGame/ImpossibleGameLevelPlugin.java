@@ -3,6 +3,7 @@ package santomon.ImpossibleGame;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
+import data.missions.xddmission.IGMisc;
 
 import java.util.List;
 
@@ -64,7 +65,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
                     data[i][j] = Integer.parseInt(characters[j]);
                 }
             }
-            return data;
+            int[][] result = IGMisc.transposeMatrix(data);
+            return result;
         } catch (Exception e){
             throw new RuntimeException("Failed to load level data", e);
         }
