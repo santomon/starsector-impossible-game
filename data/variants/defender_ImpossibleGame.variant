@@ -1,0 +1,21 @@
+{
+    "displayName": "Impossible",
+    "fluxCapacitors": 6,
+    "fluxVents": 6,
+    "goalVariant": true,
+    "hullId": "defender",
+    "hullMods": ["missileracks"],
+    "permaMods": ["missileracks"],
+    "quality": 0,
+    "variantId": "defender_ImpossibleGame",
+    "weaponGroups": [{
+        "autofire": true,
+        "mode": "LINKED",
+        "weapons": {
+            "WS 001": "vulcan",
+            "WS 002": "lightdualmg",
+            "WS 003": "lightdualmg",
+            "WS 004": "vulcan"
+        }
+    }]
+}
