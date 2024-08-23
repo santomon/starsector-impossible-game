@@ -3,6 +3,7 @@ package santomon.ImpossibleGame;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatFleetManagerAPI;
+import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -25,8 +26,8 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     public float mapSizeY;
 
 
-    public static final float spawnInterval = 1f;
     public static final float objectVelocity = 1000f;
+    public static final float spawnInterval = objectVelocity * 0.0002f;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
     public static final float tileSize = 128f;  // kite has  a collision radius of 64
@@ -63,6 +64,8 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     }
 
     public void jump() {
+        selfDamage();
+
 
     }
 
@@ -103,6 +106,14 @@ public class ImpossibleGameEngine implements AdvanceableListener {
             }
         }
 
+    }
+
+    public static void selfDamage() {
+
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        ShipAPI playerShip = combatEngineAPI.getPlayerShip();
+
+        combatEngineAPI.applyDamage(playerShip, playerShip.getLocation(), 10, DamageType.HIGH_EXPLOSIVE, 0, false, false, null, false);
     }
 
     public static boolean getIsShipOutOfBounds(ShipAPI ship, float mapSizeX, float mapSizeY) {

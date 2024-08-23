@@ -24,4 +24,6 @@ public class IGMisc {
         public static final String IG_KITE_VARIANT_ID = "kite_ImpossibleGame";
         public static final String IG_HERMES_VARIANT_ID = "hermes_ImpossibleGame";
     }
+
+
 }

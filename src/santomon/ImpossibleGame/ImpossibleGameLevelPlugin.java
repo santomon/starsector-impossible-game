@@ -56,6 +56,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
         ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(this.levelData, this.mapSizeX, this.mapSizeY);
+        KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTaken = new KillPlayerWhenAnyPlayerDamageIsTaken();
+        engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTaken);
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
         playerShip.addListener(impossibleGameEngine);
         this.impossibleGameEngine = impossibleGameEngine;
