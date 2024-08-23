@@ -91,6 +91,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     }
 
     public static void despawnObsoleteShips(float mapSizeX, float mapSizeY) {
+        // not sure if this is even necessary, as the engine seems to despawn out of  bounds ships by itself or sth
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI fleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
 
@@ -98,9 +99,6 @@ public class ImpossibleGameEngine implements AdvanceableListener {
             FleetMemberAPI fleetMemberAPI = ship.getFleetMember();
             if (ship.getOwner() == 1 && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship, mapSizeX, mapSizeY )
             ) {
-                Logger logger  =Global.getLogger(ImpossibleGameEngine.class);
-                logger.setLevel(Level.INFO);
-                logger.info("triggering shit");
                 combatEngineAPI.removeEntity(ship);
             }
         }
