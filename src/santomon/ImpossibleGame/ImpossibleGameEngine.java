@@ -5,12 +5,14 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.CombatFleetManagerAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import data.missions.xddmission.IGMisc;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class ImpossibleGameEngine implements AdvanceableListener {
     // a lot of the logic is put here to enable pausing maybe?
@@ -47,23 +49,31 @@ public class ImpossibleGameEngine implements AdvanceableListener {
 
     @Override
     public void advance(float amount) {
-        currentSecondStack += amount;
+        this.currentSecondStack += amount;
 
-        if (currentSecondStack >= spawnInterval) {
-            currentSecondStack = 0;
-            spawnColumn(this.levelData, this.currentLevelStage, this.mapSizeX, this.mapSizeY);
+        if (this.currentSecondStack >= spawnInterval) {
+            this.currentSecondStack = 0;
+            spawnColumn(this.levelData[this.currentLevelStage], this.mapSizeX, this.mapSizeY);
             this.currentLevelStage += 1;
+
+            // prob enough if we do it only when we spawn shit
+            despawnObsoleteShips(this.mapSizeX, this.mapSizeY);
         }
+
     }
 
-    public static void spawnColumn(int[][] levelData, int currentLevelStage, float mapSizeX, float mapSizeY) {
+    public void jump() {
+
+    }
+
+    public static void spawnColumn(int[] column, float mapSizeX, float mapSizeY) {
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI enemyFleetManagerAPI = combatEngineAPI.getFleetManager(FleetSide.ENEMY);
 
-        int columnSize = levelData[currentLevelStage].length;
+        int columnSize = column.length;
 
         for (int i = 0; i < columnSize; i++) {
-            String entityID = objectLookUpTable.get(levelData[currentLevelStage][i]);
+            String entityID = objectLookUpTable.get(column[i]);
             if (entityID != null) {
                 System.out.println("Spawning Entity: " + entityID);
                 Vector2f spawnPosition = calculateSpawnPosition(i, mapSizeX, mapSizeY);
@@ -78,5 +88,27 @@ public class ImpossibleGameEngine implements AdvanceableListener {
         float Y = mapSizeY / 2f - topPadding - i * tileSize;
         float X = mapSizeX / 2f - rightPadding;
         return new Vector2f(X, Y);
+    }
+
+    public static void despawnObsoleteShips(float mapSizeX, float mapSizeY) {
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        CombatFleetManagerAPI fleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
+
+        for (ShipAPI ship : combatEngineAPI.getShips()) {
+            FleetMemberAPI fleetMemberAPI = ship.getFleetMember();
+            if (ship.getOwner() == 1 && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship, mapSizeX, mapSizeY )
+            ) {
+                Logger logger  =Global.getLogger(ImpossibleGameEngine.class);
+                logger.setLevel(Level.INFO);
+                logger.info("triggering shit");
+                combatEngineAPI.removeEntity(ship);
+            }
+        }
+
+    }
+
+    public static boolean getIsShipOutOfBounds(ShipAPI ship, float mapSizeX, float mapSizeY) {
+        Vector2f shipLocation  = ship.getLocation();
+        return shipLocation.x < -mapSizeX / 2 || shipLocation.x > mapSizeX / 2 || shipLocation.y < -mapSizeY / 2 || shipLocation.y > mapSizeY / 2;
     }
 }

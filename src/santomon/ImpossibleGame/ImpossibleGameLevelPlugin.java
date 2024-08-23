@@ -3,8 +3,11 @@ package santomon.ImpossibleGame;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.input.InputEventType;
 import data.missions.xddmission.IGMisc;
+import org.lwjgl.util.vector.Vector2f;
 
+import javax.swing.event.DocumentEvent;
 import java.util.List;
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
@@ -12,6 +15,9 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public int[][] levelData;
     public float mapSizeX;
     public float mapSizeY;
+    public ImpossibleGameEngine impossibleGameEngine;
+    public static final Character jumpKey = ' ';  // ok this works
+    public static final Character alternativeJumpKey = 'M';
 
 
     public ImpossibleGameLevelPlugin(String levelName, float mapSizeX, float mapSizeY) {
@@ -29,6 +35,16 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             fakeInit(Global.getCombatEngine());
             hasCalledFakeInit = true;
         }
+
+        if (getJumpKeyPressed(events) && this.impossibleGameEngine != null) {
+            this.impossibleGameEngine.jump();
+        }
+
+        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+        playerShip.setControlsLocked(true);
+        playerShip.setPhased(true);
+        playerShip.getVelocity().set(new Vector2f(0, 0));
+        playerShip.getLocation().set(new Vector2f(0, 0));
     }
 
     @Override
@@ -39,10 +55,10 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public Boolean hasCalledFakeInit = false;
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
-        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
         ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(this.levelData, this.mapSizeX, this.mapSizeY);
+        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
         playerShip.addListener(impossibleGameEngine);
-
+        this.impossibleGameEngine = impossibleGameEngine;
     }
 
 
@@ -75,6 +91,18 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             }
             System.out.println();
         }
+    }
+
+    public static boolean getJumpKeyPressed(List<InputEventAPI> events) {
+        for (InputEventAPI event : events) {
+            if (event.getEventChar() == jumpKey) {
+                return true;
+            }
+            if (event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
