@@ -7,7 +7,6 @@ import com.fs.starfarer.api.input.InputEventType;
 import data.missions.xddmission.IGMisc;
 import org.lwjgl.util.vector.Vector2f;
 
-import javax.swing.event.DocumentEvent;
 import java.util.List;
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
@@ -37,7 +36,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         }
 
         if (getJumpKeyPressed(events) && this.impossibleGameEngine != null) {
-            this.impossibleGameEngine.jump();
+            this.impossibleGameEngine.maybeInitiateJump();
         }
 
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
@@ -55,7 +54,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public Boolean hasCalledFakeInit = false;
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
-        ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(this.levelData, this.mapSizeX, this.mapSizeY);
+        ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(IGMisc.Constants.IG_HERMES_VARIANT_ID, this.levelData, this.mapSizeX, this.mapSizeY);
         KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTaken = new KillPlayerWhenAnyPlayerDamageIsTaken();
         engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTaken);
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
