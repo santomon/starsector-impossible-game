@@ -9,6 +9,8 @@ import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import data.missions.xddmission.IGMisc;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -28,10 +30,11 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     public float mapSizeY;
 
 
+
     // jumping physics parameters
-    public static final float gravity = 10f;
-    public static final float jumpForce = 100f;
-    public static final float maxVelocity = 100f;
+    public static final float gravity = 300f;
+    public static final float jumpForce = 100000f;
+    public static final float maxVelocity = 10000f;
     public static final float groundTolerance = 10f;  //
 
 
@@ -67,6 +70,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
 
         if (this.currentSecondStack >= spawnInterval) {
             this.currentSecondStack = 0;
+            if (this.currentLevelStage >= this.levelData.length) return;  // we are finished with the level
             spawnColumn(this.levelData[this.currentLevelStage], this.mapSizeX, this.mapSizeY);
             this.currentLevelStage += 1;
 
@@ -88,6 +92,8 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     public static void initiateJump(ShipAPI jumper) {
         if (getJumpingState(jumper) == JumpingState.GROUND) {
             float accelarationOrSth = jumpForce / jumper.getMass() + 0.0000000000001f;
+            getLogger().info("jumping with Starting Velocity: " + accelarationOrSth);
+
             jumper.getVelocity().setY(accelarationOrSth);
         }
     }
@@ -198,5 +204,11 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     public static boolean getIsShipOutOfBounds(ShipAPI ship, float mapSizeX, float mapSizeY) {
         Vector2f shipLocation  = ship.getLocation();
         return shipLocation.x < -mapSizeX / 2 || shipLocation.x > mapSizeX / 2 || shipLocation.y < -mapSizeY / 2 || shipLocation.y > mapSizeY / 2;
+    }
+
+    public static Logger getLogger() {
+        Logger logger = Global.getLogger(ImpossibleGameEngine.class);
+        logger.setLevel(Level.INFO);
+        return logger;
     }
 }
