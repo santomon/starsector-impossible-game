@@ -49,6 +49,9 @@ public class ImpossibleGameEngine implements AdvanceableListener {
         put(2, IGMisc.Constants.IG_KITE_VARIANT_ID);  // spikes
     }
     };
+    public static final List<String> groundShips = new ArrayList<String>() {{
+        add(objectLookUpTable.get(1));
+    }};
 
 
     public ImpossibleGameEngine(String jumper_variant_id, int[][] levelData, float mapSizeX, float mapSizeY) {
@@ -103,9 +106,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
         if (getJumpingState(jumper) == JumpingState.GROUND) return;
 
 
-        if (getIsNearGround(jumper, new ArrayList<String>(){{
-            add(objectLookUpTable.get(1));
-        }})) {
+        if (getIsNearGround(jumper, groundShips)) {
             jumper.getVelocity().setY(0);
         }
 
@@ -144,13 +145,13 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     }
 
     public static JumpingState getJumpingState(ShipAPI ship) {
-        if (ship.getVelocity().y == 0f) {
+        if (Math.abs(ship.getVelocity().y) < 0.001f && getIsNearGround(ship, groundShips)) {
             return JumpingState.GROUND;
         }
-        if (ship.getVelocity().y < 0f) {
-            return JumpingState.FALLING;
-        } else {
+        if (ship.getVelocity().y > 0f) {
             return JumpingState.JUMPING;
+        } else {
+            return JumpingState.FALLING;
         }
     }
 
