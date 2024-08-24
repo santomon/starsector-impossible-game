@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector2f;
 public class KillPlayerWhenAnyPlayerDamageIsTaken implements DamageListener {
 
     public final float damage = 1000000;
+    public final String killTag = "IG_Killed";
 
     @Override
     public void reportDamageApplied(Object source, CombatEntityAPI target, ApplyDamageResultAPI result) {
@@ -20,14 +21,15 @@ public class KillPlayerWhenAnyPlayerDamageIsTaken implements DamageListener {
         if (target.getOwner() == 0) {
             CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
             for (ShipAPI ship : combatEngineAPI.getShips()) {
-                if (ship.getOwner() == 0) {
+                if (ship.getOwner() == 0 && !ship.getTags().contains(killTag)) {
                     combatEngineAPI.applyDamage(ship, ship.getLocation(),
                             damage, DamageType.HIGH_EXPLOSIVE,
                             0, false,
                             false,
-                            null,
+                            Global.getCombatEngine().getPlayerShip(),
                             false
                     );
+                    ship.addTag(killTag);
                 }
             }
         }
