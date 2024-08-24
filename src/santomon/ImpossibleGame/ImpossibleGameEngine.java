@@ -96,7 +96,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
 
 
         if (getIsNearGround(jumper, new ArrayList<String>(){{
-            set(0, objectLookUpTable.get(1));
+            add(objectLookUpTable.get(1));
         }})) {
             jumper.getVelocity().setY(0);
         }
