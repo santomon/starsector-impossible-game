@@ -1,12 +1,9 @@
 package santomon.ImpossibleGame;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.CombatFleetManagerAPI;
-import com.fs.starfarer.api.combat.DamageType;
-import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
+import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import data.missions.xddmission.IGMisc;
 import org.apache.log4j.Level;
@@ -19,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class ImpossibleGameEngine implements AdvanceableListener {
+public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     // a lot of the logic is put here to enable pausing maybe?
 
     public int[][] levelData;
@@ -54,7 +51,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     }};
 
 
-    public ImpossibleGameEngine(String jumper_variant_id, int[][] levelData, float mapSizeX, float mapSizeY) {
+    public ImpossibleGameLevelEngine(String jumper_variant_id, int[][] levelData, float mapSizeX, float mapSizeY) {
 
         // spawn the jumper; 3 tiles away from the middle
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
@@ -68,7 +65,11 @@ public class ImpossibleGameEngine implements AdvanceableListener {
 
 
     @Override
-    public void advance(float amount) {
+    public void advance(float amount, List<InputEventAPI> events) {
+
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        if (combatEngineAPI.isPaused()) return;
+
         this.currentSecondStack += amount;
 
         if (this.currentSecondStack >= spawnInterval) {
@@ -208,7 +209,7 @@ public class ImpossibleGameEngine implements AdvanceableListener {
     }
 
     public static Logger getLogger() {
-        Logger logger = Global.getLogger(ImpossibleGameEngine.class);
+        Logger logger = Global.getLogger(ImpossibleGameLevelEngine.class);
         logger.setLevel(Level.INFO);
         return logger;
     }

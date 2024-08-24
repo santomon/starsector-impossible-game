@@ -14,7 +14,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public int[][] levelData;
     public float mapSizeX;
     public float mapSizeY;
-    public ImpossibleGameEngine impossibleGameEngine;
+    public ImpossibleGameLevelEngine impossibleGameLevelEngine;
     public static final Character jumpKey = ' ';  // ok this works
     public static final Character alternativeJumpKey = 'M';
 
@@ -35,8 +35,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             hasCalledFakeInit = true;
         }
 
-        if (getJumpKeyPressed(events) && this.impossibleGameEngine != null) {
-            this.impossibleGameEngine.maybeInitiateJump();
+        if (getJumpKeyPressed(events) && this.impossibleGameLevelEngine != null) {
+            this.impossibleGameLevelEngine.maybeInitiateJump();
         }
 
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
@@ -54,12 +54,11 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public Boolean hasCalledFakeInit = false;
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
-        ImpossibleGameEngine impossibleGameEngine = new ImpossibleGameEngine(IGMisc.Constants.IG_HERMES_VARIANT_ID, this.levelData, this.mapSizeX, this.mapSizeY);
+        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(IGMisc.Constants.IG_HERMES_VARIANT_ID, this.levelData, this.mapSizeX, this.mapSizeY);
+        engine.addPlugin(this.impossibleGameLevelEngine);
+
         KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTaken = new KillPlayerWhenAnyPlayerDamageIsTaken();
         engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTaken);
-        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
-        playerShip.addListener(impossibleGameEngine);
-        this.impossibleGameEngine = impossibleGameEngine;
     }
 
 
