@@ -13,7 +13,7 @@ import org.lwjgl.util.vector.Vector2f;
 public class KillPlayerWhenAnyPlayerDamageIsTaken implements DamageListener {
 
     public final float damage = 1000000;
-    public final String killScriptID = "KillPlayerWhenAnyPlayerDamageIsTaken";
+    public final String killScriptID = "impossible_KillPlayerWhenAnyPlayerDamageIsTaken";
 
     @Override
     public void reportDamageApplied(Object source, CombatEntityAPI target, ApplyDamageResultAPI result) {
