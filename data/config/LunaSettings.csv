@@ -4,8 +4,8 @@ impossible_shipChoiceText,Ship Choices Help,Text,"enter a valid variant id here.
 impossible_jumperVariantID,Jumper ID,String,hermes_ImpossibleGame,,,,,
 ,,,,,,,,
 ,,,,,,,,
-impossible_jumpHeader,Jumping Header,Header,xdd,,,,,Physics
-impossible_jumpForce,Jump Force,Double,10000,,,,,Physics
-impossible_maxJumpVelocity,Jump Max Velocity,Double,500,,,,,Physics
-impossible_gravityForce,Gravitational Force,Double,1000,,,,,Physics
+impossible_jumpHeader,Jumping Header,Header,Jumping Physics,,,,,Physics
+impossible_jumpForce,Jump Force,Double,10000,,,1,100000,Physics
+impossible_maxJumpVelocity,Jump Max Velocity,Double,500,,,1,4000,Physics
+impossible_gravityForce,Gravitational Force,Double,1000,,,1,100000,Physics
 ,,,,,,,,Physics
