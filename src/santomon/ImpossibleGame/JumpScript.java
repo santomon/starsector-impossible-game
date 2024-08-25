@@ -29,7 +29,7 @@ public class JumpScript implements AdvanceableListener {
 
     }
 
-    public void setGravityisReversed(boolean reversed) {
+    public void setGravityIsReversed(boolean reversed) {
         this.gravityIsReversed = reversed;
     }
     public boolean getGravityIsReversed() {
