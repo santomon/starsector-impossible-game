@@ -1,15 +1,13 @@
 package santomon.ImpossibleGame;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
-import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import data.missions.xddmission.IGMisc;
 import org.lwjgl.util.vector.Vector2f;
+
 import java.util.List;
-import luna
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
@@ -19,7 +17,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public ImpossibleGameLevelEngine impossibleGameLevelEngine;
     public static final Character jumpKey = ' ';  // ok this works
     public static final Character alternativeJumpKey = 'M';
-    private ShipAPI jumper;
 
 
     public ImpossibleGameLevelPlugin(String levelName, float mapSizeX, float mapSizeY) {
@@ -28,7 +25,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         this.levelData = loadLevelData(levelName);
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
-
     }
 
 
@@ -64,14 +60,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTaken = new KillPlayerWhenAnyPlayerDamageIsTaken();
         engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTaken);
     }
-
-   public ShipAPI createJumper(String jumperVariantID, float tileSize) {
-        CombatEngineAPI engine = Global.getCombatEngine();
-       this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(- tileSize * 3,0), 90);
-       this.jumper.makeLookDisabled();
-       this.jumper.getVelocity().set(0, 0);
-       return this.jumper;
-   }
 
 
 

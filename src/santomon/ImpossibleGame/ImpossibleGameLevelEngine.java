@@ -28,6 +28,13 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
 
 
+    // jumping physics parameters
+    public static final float gravity = 300f;
+    public static final float jumpForce = 100000f;
+    public static final float maxVelocity = 10000f;
+    public static final float groundTolerance = 10f;  //
+
+
     public static final float objectVelocity = 1000f;
     public static final float spawnInterval = objectVelocity * 0.0002f;
     public static final float topPadding = 100f;
@@ -48,6 +55,9 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
         // spawn the jumper; 3 tiles away from the middle
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        this.jumper = combatEngineAPI.getFleetManager(0).spawnShipOrWing(jumper_variant_id, new Vector2f(- tileSize * 3,0), 90);
+        this.jumper.makeLookDisabled();
+        this.jumper.getVelocity().set(0, 0);
         this.levelData = levelData;
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
