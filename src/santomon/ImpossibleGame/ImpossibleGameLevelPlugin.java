@@ -14,9 +14,10 @@ import java.util.List;
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
-    public int[][] levelData;
-    public float mapSizeX;
-    public float mapSizeY;
+    public final int[][] levelData;
+    public final float mapSizeX;
+    public final float mapSizeY;
+    public final JumpSettings jumpSettings;
     public ImpossibleGameLevelEngine impossibleGameLevelEngine;
     public static final Character jumpKey = ' ';  // ok this works
     public static final Character alternativeJumpKey = 'M';
@@ -29,12 +30,11 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         this.levelData = loadLevelData(levelName);
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
-
-
-        JumpSettings jumpSettings = new JumpSettings(
-                LunaSettings.getFloat("")
-
-
+        this.jumpSettings = new JumpSettings(
+                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.GRAVITY_FORCE_ID),
+                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.JUMP_FORCE_ID),
+                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.MAX_JUMP_VELOCITY_ID),
+                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.GROUND_TOLERANCE_ID)
         );
 
     }

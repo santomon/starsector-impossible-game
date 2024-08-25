@@ -8,4 +8,5 @@ impossible_jumpHeader,Jumping Header,Header,Jumping Physics,,,,,Physics
 impossible_jumpForce,Jump Force,Double,10000,,,1,100000,Physics
 impossible_maxJumpVelocity,Jump Max Velocity,Double,500,,,1,100000,Physics
 impossible_gravityForce,Gravitational Force,Double,1000,,,1,4000,Physics
+impossible_groundTolerance,Ground Tolerance,Double,20,,,1,100,Physics
 ,,,,,,,,Physics

@@ -25,6 +25,11 @@ public class IGMisc {
         public static final String IG_HERMES_VARIANT_ID = "hermes_ImpossibleGame";
 
         public static final String IG_MOD_ID = "impossibleGame";
+        public static final String GRAVITY_FORCE_ID = "impossible_gravityForce";
+        public static final String MAX_JUMP_VELOCITY_ID = "impossible_maxJumpVelocity";
+        public static final String JUMP_FORCE_ID = "impossible_jumpForce";
+        public static final String GROUND_TOLERANCE_ID = "impossible_groundTolerance";
+
     }
 
 
