@@ -6,6 +6,7 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import data.missions.xddmission.IGMisc;
 import org.lwjgl.util.vector.Vector2f;
+import lunalib.lunaSettings.LunaSettings;
 
 import java.util.List;
 
@@ -25,6 +26,13 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         this.levelData = loadLevelData(levelName);
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
+
+        JumpSettings jumpSettings = new JumpSettings(
+                LunaSettings.getFloat("")
+
+
+        );
+
     }
 
 
