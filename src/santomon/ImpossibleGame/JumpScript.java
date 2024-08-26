@@ -8,6 +8,7 @@ import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.input.InputEventAPI;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.lazywizard.lazylib.combat.CombatUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -54,10 +55,10 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public void initiateJump() {
         if (this.getJumpingState() == JumpingState.GROUND) {
-            float accelarationOrSth = this.settings.jumpForce / jumper.getMass() + 0.0000000000001f;
-            getLogger().info("jumping with Starting Velocity: " + accelarationOrSth);
-
-            jumper.getVelocity().setY(accelarationOrSth);
+            getLogger().info("jumping with Force: " + this.settings.jumpForce);
+            int signum = !this.gravityIsReversed ? 1 : -1;
+            Vector2f direction = new Vector2f(0, signum);
+            CombatUtils.applyForce(this.jumper, direction, this.settings.jumpForce );
         }
     }
 
@@ -83,7 +84,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         for (ShipAPI ship : combatEngineAPI.getShips()) {
             for (String entityID : this.groundShipIDs) {
                 if (Objects.equals(ship.getVariant().getHullVariantId(), entityID)) {
-                    if (getIsJustAbove(this.jumper, ship)) {
+                    if (getIsJustAbove(ship)) {
                         return true;
                     }
                 }
@@ -92,14 +93,15 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         return false;
     }
 
-    public boolean getIsJustAbove(ShipAPI jumper, ShipAPI groundShip) {
-        Vector2f jumperLocation = jumper.getLocation();
+    public boolean getIsJustAbove(ShipAPI groundShip) {
+        Vector2f jumperLocation = this.jumper.getLocation();
         Vector2f groundLocation = groundShip.getLocation();
-        boolean jumperIsInXRange = jumperLocation.x > groundLocation.x - this.settings.tileSize / 2 - this.settings.groundTolerance && jumperLocation.x < groundLocation.x + tileSize / 2 + this.settings.groundTolerance;
+        float radius = groundShip.getCollisionRadius();
+        boolean jumperIsInXRange = jumperLocation.x > groundLocation.x - radius - this.settings.groundTolerance && jumperLocation.x < groundLocation.x + radius + this.settings.groundTolerance;
         if (!jumperIsInXRange) {
             return false;
         }
-        boolean jumperIsInYRange  = jumperLocation.y > groundLocation.y + tileSize / 2 - this.settings.groundTolerance && jumperLocation.y < groundLocation.y + tileSize / 2 + this.settings.groundTolerance;
+        boolean jumperIsInYRange  = jumperLocation.y > groundLocation.y + radius - this.settings.groundTolerance && jumperLocation.y < groundLocation.y + radius + this.settings.groundTolerance;
         return jumperIsInYRange;
     }
 
