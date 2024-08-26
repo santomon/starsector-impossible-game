@@ -4,9 +4,9 @@ impossible_shipChoiceText,Ship Choices Help,Text,"enter a valid variant id here.
 impossible_jumperVariantID,Jumper ID,String,hermes_ImpossibleGame,,,,,
 ,,,,,,,,
 impossible_keyBindingsHeader,Key Bindings,Header,Key Bindings,,,,,
-impossible_jumpKey,Jump Key,Keycode,81,,,,,
-impossible_alternativeJumpKey,Alternative Jump Key,Keycode,87,,,,,
-impossible_quickRestartKey,Quick Restart,Keycode,69,,,,,
+impossible_jumpKey,Jump Key,Keycode,16,,,,,
+impossible_alternativeJumpKey,Alternative Jump Key,Keycode,17,,,,,
+impossible_quickRestartKey,Quick Restart,Keycode,18,,,,,
 ,,,,,,,,
 impossible_jumpHeader,Jumping Header,Header,Jumping Physics,,,,,Physics
 impossible_jumpForce,Jump Force,Double,100,,,1,1000,Physics
