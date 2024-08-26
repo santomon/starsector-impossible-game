@@ -6,7 +6,10 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
+import com.fs.starfarer.coreui.refit.auto.SavedVariantData;
 import data.missions.xddmission.IGMisc;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 import lunalib.lunaSettings.LunaSettings;
 
@@ -21,6 +24,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public final float mapSizeY;
     public final JumpSettings jumpSettings;
     public final KeyBindings keyBindings;
+    public final String jumperVariantID;
 
     public ImpossibleGameLevelEngine impossibleGameLevelEngine;
     public static final Character jumpKey = ' ';  // ok this works
@@ -31,8 +35,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public static final HashMap<Integer, String> objectLookUpTable = new HashMap<Integer, String>() {{
         put(0, null);
-        put(1, IGMisc.Constants.IG_DEFENDER_VARIANT_ID);  // block
-        put(2, IGMisc.Constants.IG_KITE_VARIANT_ID);  // spikes
+        put(1, IGMisc.LunaLibKeys.IG_DEFENDER_VARIANT_ID);  // block
+        put(2, IGMisc.LunaLibKeys.IG_KITE_VARIANT_ID);  // spikes
     }
     };
     public static final List<String> groundShipIDs = new ArrayList<String>() {{
@@ -47,23 +51,30 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
         this.jumpSettings = new JumpSettings(
-                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.GRAVITY_FORCE_ID),
-                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.JUMP_FORCE_ID),
-                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.MAX_JUMP_VELOCITY_ID),
-                LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.GROUND_TOLERANCE_ID)
+                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.GRAVITY_FORCE_ID),
+                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.JUMP_FORCE_ID),
+                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.MAX_JUMP_VELOCITY_ID),
+                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.GROUND_TOLERANCE_ID)
         );
 
         this.keyBindings = new KeyBindings(
                 safelyRetrieveCharactersFromLunalib(new ArrayList<String>() {{
-                    add(IGMisc.Constants.JUMP_KEY_ID);
-                    add(IGMisc.Constants.ALTERNATIVE_JUMP_KEY_ID);
+                    add(IGMisc.LunaLibKeys.JUMP_KEY_ID);
+                    add(IGMisc.LunaLibKeys.ALTERNATIVE_JUMP_KEY_ID);
                 }}),
                 safelyRetrieveCharactersFromLunalib(
                         new ArrayList<String>() {{
-                            add(IGMisc.Constants.QUICK_RESTART_KEY_ID);
+                            add(IGMisc.LunaLibKeys.QUICK_RESTART_KEY_ID);
                         }}
                 )
         );
+
+        String maybeJumperVariantID = LunaSettings.getString(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.JUMPER_VARIANT_ID);
+        if (maybeJumperVariantID == null || !Global.getSettings().doesVariantExist(maybeJumperVariantID)) {
+            this.jumperVariantID = IGMisc.LunaLibKeys.IG_HERMES_VARIANT_ID;
+        } else {
+            this.jumperVariantID = maybeJumperVariantID;
+        }
 
     }
 
@@ -95,11 +106,13 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
         KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTaken = new KillPlayerWhenAnyPlayerDamageIsTaken();
         engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTaken);
+
+        this.createJumper();
     }
 
-   public ShipAPI createJumper(String jumperVariantID, float tileSize) {
+   public ShipAPI createJumper() {
         CombatEngineAPI engine = Global.getCombatEngine();
-       this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(- tileSize * 3,0), 90);
+       this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(0,0), 90);
        this.jumper.makeLookDisabled();
        this.jumper.getVelocity().set(0, 0);
 
@@ -140,26 +153,20 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         }
     }
 
-    public static boolean getJumpKeyPressed(List<InputEventAPI> events) {
-        for (InputEventAPI event : events) {
-            if (event.getEventChar() == jumpKey) {
-                return true;
-            }
-            if (event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
     public static List<Character> safelyRetrieveCharactersFromLunalib(List<String> ids) {
         List<Character> characters = new ArrayList<>();
         for (String id : ids) {
-            String value = LunaSettings.getString(IGMisc.Constants.IG_MOD_ID, id);
+            String value = LunaSettings.getString(IGMisc.LunaLibKeys.IG_MOD_ID, id);
             if (value != null && !value.isEmpty()) {
                 characters.add(value.charAt(0));
             }
         }
         return characters;
+    }
+    public static Logger getLogger() {
+        Logger logger = Global.getLogger(ImpossibleGameLevelPlugin.class);
+        logger.setLevel(Level.INFO);
+        return logger;
     }
 }
 

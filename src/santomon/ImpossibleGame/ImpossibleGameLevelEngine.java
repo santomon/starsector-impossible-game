@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.input.InputEventType;
 import com.fs.starfarer.api.mission.FleetSide;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -115,6 +116,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         Vector2f shipLocation  = ship.getLocation();
         return shipLocation.x < -mapSizeX / 2 || shipLocation.x > mapSizeX / 2 || shipLocation.y < -mapSizeY / 2 || shipLocation.y > mapSizeY / 2;
     }
+
 
     public static Logger getLogger() {
         Logger logger = Global.getLogger(ImpossibleGameLevelEngine.class);

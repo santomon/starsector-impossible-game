@@ -4,8 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.input.InputEventType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.combat.CombatUtils;
@@ -21,12 +21,13 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public ShipAPI jumper;
     public JumpSettings settings;
     private boolean gravityIsReversed = false;
-    private List<String> jumpInputs;
+    private List<Character> jumpKeys;
 
-    public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Character> jumpInputs) {
+    public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Character> jumpKeys) {
         this.groundShipIDs = groundShipIDs;
         this.jumper = jumper;
         this.settings = settings;
+        this.jumpKeys = jumpKeys;
     }
 
 
@@ -114,6 +115,22 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         } else {
             return JumpingState.FALLING;
         }
+    }
+
+
+    public boolean getJumpKeyPressed(List<InputEventAPI> events) {
+        for (InputEventAPI event : events) {
+            if (event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) {
+                return true;
+            }
+            for (Character jumpKey : this.jumpKeys) {
+                if (event.getEventChar() == jumpKey) {
+                    return true;
+                }
+            }
+
+        }
+        return false;
     }
 
     public static Logger getLogger() {
