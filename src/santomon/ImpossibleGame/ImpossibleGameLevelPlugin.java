@@ -5,8 +5,6 @@ import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.input.InputEventType;
-import com.fs.starfarer.coreui.refit.auto.SavedVariantData;
 import data.missions.xddmission.IGMisc;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -58,11 +56,11 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         );
 
         this.keyBindings = new KeyBindings(
-                safelyRetrieveCharactersFromLunalib(new ArrayList<String>() {{
+                safelyRetrieveKeycodesFromLunalib(new ArrayList<String>() {{
                     add(IGMisc.LunaLibKeys.JUMP_KEY_ID);
                     add(IGMisc.LunaLibKeys.ALTERNATIVE_JUMP_KEY_ID);
                 }}),
-                safelyRetrieveCharactersFromLunalib(
+                safelyRetrieveKeycodesFromLunalib(
                         new ArrayList<String>() {{
                             add(IGMisc.LunaLibKeys.QUICK_RESTART_KEY_ID);
                         }}
@@ -155,15 +153,14 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         }
     }
 
-    public static List<Character> safelyRetrieveCharactersFromLunalib(List<String> ids) {
-        List<Character> characters = new ArrayList<>();
+    public static List<Integer> safelyRetrieveKeycodesFromLunalib(List<String> ids) {
+        List<Integer> keycodes = new ArrayList<>();
         for (String id : ids) {
-            String value = LunaSettings.getString(IGMisc.LunaLibKeys.IG_MOD_ID, id);
-            if (value != null && !value.isEmpty()) {
-                characters.add(value.charAt(0));
-            }
+            Integer value = LunaSettings.getInt(IGMisc.LunaLibKeys.IG_MOD_ID, id);
+            if (value == null || value != 0) continue;
+            keycodes.add(value);
         }
-        return characters;
+        return keycodes;
     }
     public static Logger getLogger() {
         Logger logger = Global.getLogger(ImpossibleGameLevelPlugin.class);

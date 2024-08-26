@@ -9,6 +9,7 @@ import com.fs.starfarer.api.input.InputEventType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.combat.CombatUtils;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -20,10 +21,10 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final List<String> groundShipIDs;
     public final ShipAPI jumper;
     public final JumpSettings settings;
-    public final List<Character> jumpKeys;
+    public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
 
-    public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Character> jumpKeys) {
+    public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Integer> jumpKeys) {
         this.groundShipIDs = groundShipIDs;
         this.jumper = jumper;
         this.settings = settings;
@@ -137,8 +138,8 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
             if (event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) {
                 return true;
             }
-            for (Character jumpKey : this.jumpKeys) {
-                if (event.getEventChar() == jumpKey) {
+            for (Integer jumpKey : this.jumpKeys) {
+                if (event.getEventValue() == jumpKey) {
                     return true;
                 }
             }

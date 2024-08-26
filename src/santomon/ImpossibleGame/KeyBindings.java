@@ -4,11 +4,11 @@ import java.util.List;
 
 public class KeyBindings {
 
-    public final List<Character> jumpKeys;
-    public final List<Character> quickRestartKeys;
+    public final List<Integer> jumpKeys;
+    public final List<Integer> quickRestartKeys;
 
 
-    KeyBindings(List<Character> jumpKeys, List<Character> quickRestartKeys) {
+    KeyBindings(List<Integer> jumpKeys, List<Integer> quickRestartKeys) {
         this.jumpKeys = jumpKeys;
         this.quickRestartKeys = quickRestartKeys;
     }
