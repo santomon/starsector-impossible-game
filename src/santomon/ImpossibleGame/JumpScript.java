@@ -34,12 +34,12 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
-        // resolve jumping
-        advanceJump(this.jumper, amount);
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (engine.isPaused()) return;
 
-        if (this.getJumpKeyPressed(events)) {
-            maybeInitiateJump();
-        }
+        this.applyGravity(amount);
+        this.maybeStopFall();
+        this.maybeInitiateJump(events);
     }
 
 
@@ -52,7 +52,8 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
 
 
-    public void maybeInitiateJump() {
+    public void maybeInitiateJump(List<InputEventAPI> events) {
+        if (!this.getJumpKeyPressed(events)) return;
         if (this.jumper == null) return;
         initiateJump();
     }
@@ -67,20 +68,23 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         }
     }
 
-    public void advanceJump(ShipAPI jumper, float amount) {
+    private void applyGravity(float amount) {
         if (this.jumper == null) return;
-        if (this.getJumpingState() == JumpingState.GROUND) return;
+        int signum = !this.gravityIsReversed ? 1 : -1;
 
-        if (this.getIsNearGround()) {
-            jumper.getVelocity().setY(0);
-        }
-
-
-        float dV_y = - amount * Math.abs(this.settings.gravity);
+        float dV_y = - signum * amount * Math.abs(this.settings.gravity);
         Vector2f oldVelocity = jumper.getVelocity();
         float maybe_new_V_y = oldVelocity.y + dV_y;
         float new_V_y = Math.abs(this.settings.maxVelocity) < Math.abs(maybe_new_V_y) ? Math.signum(maybe_new_V_y) * Math.abs(this.settings.maxVelocity) : maybe_new_V_y;
         jumper.getVelocity().setY(new_V_y);
+    }
+
+
+    private void maybeStopFall() {
+        if (this.getIsNearGround()) {
+            this.jumper.getVelocity().setY(0);
+        };
+
     }
 
 
@@ -106,7 +110,13 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         if (!jumperIsInXRange) {
             return false;
         }
-        boolean jumperIsInYRange  = jumperLocation.y > groundLocation.y + radius - this.settings.groundTolerance && jumperLocation.y < groundLocation.y + radius + this.settings.groundTolerance;
+
+        boolean jumperIsInYRange;
+        if (!gravityIsReversed) {
+            jumperIsInYRange  = jumperLocation.y > groundLocation.y + radius - this.settings.groundTolerance && jumperLocation.y < groundLocation.y + radius + this.settings.groundTolerance;
+        } else {
+            jumperIsInYRange  = jumperLocation.y < groundLocation.y - radius + this.settings.groundTolerance && jumperLocation.y > groundLocation.y - radius - this.settings.groundTolerance;
+        }
         return jumperIsInYRange;
     }
 
