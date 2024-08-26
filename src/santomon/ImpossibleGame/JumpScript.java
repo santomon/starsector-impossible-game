@@ -17,11 +17,11 @@ import java.util.Objects;
 
 public class JumpScript extends BaseEveryFrameCombatPlugin {
 
-    public List<String> groundShipIDs = new ArrayList<String>();
-    public ShipAPI jumper;
-    public JumpSettings settings;
+    public final List<String> groundShipIDs;
+    public final ShipAPI jumper;
+    public final JumpSettings settings;
+    public final List<Character> jumpKeys;
     private boolean gravityIsReversed = false;
-    private List<Character> jumpKeys;
 
     public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Character> jumpKeys) {
         this.groundShipIDs = groundShipIDs;
@@ -36,6 +36,10 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public void advance(float amount, List<InputEventAPI> events) {
         // resolve jumping
         advanceJump(this.jumper, amount);
+
+        if (this.getJumpKeyPressed(events)) {
+            maybeInitiateJump();
+        }
     }
 
 

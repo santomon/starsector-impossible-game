@@ -65,6 +65,13 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     }
 
+
+    public void positionJumper(ShipAPI jumper) {
+        Vector2f newPosition = new Vector2f(- tileSize * 3,0);
+        jumper.getLocation().set(newPosition);
+    }
+
+
     public void spawnColumn(int[] column) {
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI enemyFleetManagerAPI = combatEngineAPI.getFleetManager(FleetSide.ENEMY);
