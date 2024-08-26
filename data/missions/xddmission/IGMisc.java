@@ -30,6 +30,10 @@ public class IGMisc {
         public static final String JUMP_FORCE_ID = "impossible_jumpForce";
         public static final String GROUND_TOLERANCE_ID = "impossible_groundTolerance";
 
+        public static final String JUMP_KEY_ID = "impossible_jumpKey";
+        public static final String ALTERNATIVE_JUMP_KEY_ID = "impossible_alternativeJumpKey";
+        public static final String QUICK_RESTART_KEY_ID = "impossible_quickRestartKey";
+
     }
 
 

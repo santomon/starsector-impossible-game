@@ -5,26 +5,24 @@ import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.mission.FleetSide;
-import data.missions.xddmission.IGMisc;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 
 public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     // a lot of the logic is put here to enable pausing maybe?
 
-    public int[][] levelData;
-    public ShipAPI jumper;
     public float currentSecondStack = 0f;  // 1f === 1 sec; advanced amount is in the ~0.017 range usually
     public int currentLevelStage = 0;
-    public float mapSizeX;
-    public float mapSizeY;
+
+    public final int[][] levelData;
+    public final float mapSizeX;
+    public final float mapSizeY;
+    public final HashMap<Integer, String> objectLookUpTable;
 
 
 
@@ -33,24 +31,16 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
     public static final float tileSize = 128f;  // kite has  a collision radius of 64
-    public static final HashMap<Integer, String> objectLookUpTable = new HashMap<Integer, String>() {{
-        put(0, null);
-        put(1, IGMisc.Constants.IG_DEFENDER_VARIANT_ID);  // block
-        put(2, IGMisc.Constants.IG_KITE_VARIANT_ID);  // spikes
-    }
-    };
-    public static final List<String> groundShips = new ArrayList<String>() {{
-        add(objectLookUpTable.get(1));
-    }};
 
 
-    public ImpossibleGameLevelEngine(String jumper_variant_id, int[][] levelData, float mapSizeX, float mapSizeY) {
+    public ImpossibleGameLevelEngine(int[][] levelData, float mapSizeX, float mapSizeY, HashMap<Integer, String> objectLookUpTable) {
 
         // spawn the jumper; 3 tiles away from the middle
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         this.levelData = levelData;
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
+        this.objectLookUpTable = objectLookUpTable;
     }
 
 
@@ -65,88 +55,16 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         if (this.currentSecondStack >= spawnInterval) {
             this.currentSecondStack = 0;
             if (this.currentLevelStage >= this.levelData.length) return;  // we are finished with the level
-            spawnColumn(this.levelData[this.currentLevelStage], this.mapSizeX, this.mapSizeY);
+            spawnColumn(this.levelData[this.currentLevelStage]);
             this.currentLevelStage += 1;
 
             // prob enough if we do it only when we spawn shit
             despawnObsoleteShips(this.mapSizeX, this.mapSizeY);
         }
 
-        // resolve jumping
-        advanceJump(this.jumper, amount);
     }
 
-    public void maybeInitiateJump() {
-        if (this.jumper == null) return;
-        initiateJump(this.jumper);
-
-    }
-
-
-    public static void initiateJump(ShipAPI jumper) {
-        if (getJumpingState(jumper) == JumpingState.GROUND) {
-            float accelarationOrSth = jumpForce / jumper.getMass() + 0.0000000000001f;
-            getLogger().info("jumping with Starting Velocity: " + accelarationOrSth);
-
-            jumper.getVelocity().setY(accelarationOrSth);
-        }
-    }
-
-    public static void advanceJump(ShipAPI jumper, float amount) {
-        if (jumper == null) return;
-        if (getJumpingState(jumper) == JumpingState.GROUND) return;
-
-
-        if (getIsNearGround(jumper, groundShips)) {
-            jumper.getVelocity().setY(0);
-        }
-
-
-        float dV_y = - amount * Math.abs(gravity);
-        Vector2f oldVelocity = jumper.getVelocity();
-        float maybe_new_V_y = oldVelocity.y + dV_y;
-        float new_V_y = Math.abs(maxVelocity) < Math.abs(maybe_new_V_y) ? Math.signum(maybe_new_V_y) * Math.abs(maxVelocity) : maybe_new_V_y;
-        jumper.getVelocity().setY(new_V_y);
-    }
-
-
-    public static boolean getIsNearGround(ShipAPI jumper, List<String> groundEntityIDs) {
-        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-        for (ShipAPI ship : combatEngineAPI.getShips()) {
-            for (String entityID : groundEntityIDs) {
-                if (Objects.equals(ship.getVariant().getHullVariantId(), entityID)) {
-                    if (getIsJustAbove(jumper, ship)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean getIsJustAbove(ShipAPI jumper, ShipAPI groundShip) {
-        Vector2f jumperLocation = jumper.getLocation();
-        Vector2f groundLocation = groundShip.getLocation();
-        boolean jumperIsInXRange = jumperLocation.x > groundLocation.x - tileSize / 2 - groundTolerance && jumperLocation.x < groundLocation.x + tileSize / 2 + groundTolerance;
-        if (!jumperIsInXRange) {
-            return false;
-        }
-        boolean jumperIsInYRange  = jumperLocation.y > groundLocation.y + tileSize / 2 - groundTolerance && jumperLocation.y < groundLocation.y + tileSize / 2 + groundTolerance;
-        return jumperIsInYRange;
-    }
-
-    public static JumpingState getJumpingState(ShipAPI ship) {
-        if (Math.abs(ship.getVelocity().y) < 0.001f && getIsNearGround(ship, groundShips)) {
-            return JumpingState.GROUND;
-        }
-        if (ship.getVelocity().y > 0f) {
-            return JumpingState.JUMPING;
-        } else {
-            return JumpingState.FALLING;
-        }
-    }
-
-    public static void spawnColumn(int[] column, float mapSizeX, float mapSizeY) {
+    public void spawnColumn(int[] column) {
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI enemyFleetManagerAPI = combatEngineAPI.getFleetManager(FleetSide.ENEMY);
 

@@ -10,6 +10,8 @@ import data.missions.xddmission.IGMisc;
 import org.lwjgl.util.vector.Vector2f;
 import lunalib.lunaSettings.LunaSettings;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
@@ -18,10 +20,24 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public final float mapSizeX;
     public final float mapSizeY;
     public final JumpSettings jumpSettings;
+    public final KeyBindings keyBindings;
+
     public ImpossibleGameLevelEngine impossibleGameLevelEngine;
     public static final Character jumpKey = ' ';  // ok this works
     public static final Character alternativeJumpKey = 'M';
     private ShipAPI jumper;
+    private JumpScript jumpScript;
+
+
+    public static final HashMap<Integer, String> objectLookUpTable = new HashMap<Integer, String>() {{
+        put(0, null);
+        put(1, IGMisc.Constants.IG_DEFENDER_VARIANT_ID);  // block
+        put(2, IGMisc.Constants.IG_KITE_VARIANT_ID);  // spikes
+    }
+    };
+    public static final List<String> groundShipIDs = new ArrayList<String>() {{
+        add(objectLookUpTable.get(1));
+    }};
 
 
     public ImpossibleGameLevelPlugin(String levelName, float mapSizeX, float mapSizeY) {
@@ -37,6 +53,18 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
                 LunaSettings.getFloat(IGMisc.Constants.IG_MOD_ID, IGMisc.Constants.GROUND_TOLERANCE_ID)
         );
 
+        this.keyBindings = new KeyBindings(
+                safelyRetrieveCharactersFromLunalib(new ArrayList<String>() {{
+                    add(IGMisc.Constants.JUMP_KEY_ID);
+                    add(IGMisc.Constants.ALTERNATIVE_JUMP_KEY_ID);
+                }}),
+                safelyRetrieveCharactersFromLunalib(
+                        new ArrayList<String>() {{
+                            add(IGMisc.Constants.QUICK_RESTART_KEY_ID);
+                        }}
+                )
+        );
+
     }
 
 
@@ -45,10 +73,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         if (!hasCalledFakeInit){
             fakeInit(Global.getCombatEngine());
             hasCalledFakeInit = true;
-        }
-
-        if (getJumpKeyPressed(events) && this.impossibleGameLevelEngine != null) {
-            this.impossibleGameLevelEngine.maybeInitiateJump();
         }
 
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
@@ -66,7 +90,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public Boolean hasCalledFakeInit = false;
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
-        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(IGMisc.Constants.IG_HERMES_VARIANT_ID, this.levelData, this.mapSizeX, this.mapSizeY);
+        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.mapSizeX, this.mapSizeY, objectLookUpTable);
         engine.addPlugin(this.impossibleGameLevelEngine);
 
         KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTaken = new KillPlayerWhenAnyPlayerDamageIsTaken();
@@ -78,6 +102,9 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
        this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(- tileSize * 3,0), 90);
        this.jumper.makeLookDisabled();
        this.jumper.getVelocity().set(0, 0);
+
+       this.jumpScript = new JumpScript(this.jumper, groundShipIDs, this.jumpSettings, this.keyBindings.jumpKeys);
+       engine.addPlugin(this.jumpScript);
        return this.jumper;
    }
 
@@ -124,6 +151,15 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         }
         return false;
     }
-
+    public static List<Character> safelyRetrieveCharactersFromLunalib(List<String> ids) {
+        List<Character> characters = new ArrayList<>();
+        for (String id : ids) {
+            String value = LunaSettings.getString(IGMisc.Constants.IG_MOD_ID, id);
+            if (value != null && !value.isEmpty()) {
+                characters.add(value.charAt(0));
+            }
+        }
+        return characters;
+    }
 }
 
