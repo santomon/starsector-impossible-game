@@ -10,6 +10,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public final float mapSizeX;
     public final float mapSizeY;
     public final HashMap<Integer, String> objectLookUpTable;
-
+    private final HashMap<Integer, List<ShipAPI>> availableEntitiesForSpawning;
 
 
     public static final float objectVelocity = 1000f;
@@ -34,13 +35,19 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public static final float tileSize = 128f;  // kite has  a collision radius of 64
 
 
-    public ImpossibleGameLevelEngine(int[][] levelData, float mapSizeX, float mapSizeY, HashMap<Integer, String> objectLookUpTable) {
+    public ImpossibleGameLevelEngine(int[][] levelData, float mapSizeX, float mapSizeY, final HashMap<Integer, String> objectLookUpTable) {
 
         // spawn the jumper; 3 tiles away from the middle
         this.levelData = levelData;
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
         this.objectLookUpTable = objectLookUpTable;
+
+        this.availableEntitiesForSpawning = new HashMap<Integer, List<ShipAPI>>() {{
+            for (Integer key : objectLookUpTable.keySet()) {
+                put(key, new ArrayList<ShipAPI>() );
+            }
+        }};
 
         this.spawnInitialRow();
     }
@@ -100,13 +107,25 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         int columnSize = column.length;
 
         for (int i = 0; i < columnSize; i++) {
-            String entityID = objectLookUpTable.get(column[i]);
+            int key = column[i];
+            String entityID = objectLookUpTable.get(key);
             if (entityID != null) {
-                System.out.println("Spawning Entity: " + entityID);
                 Vector2f spawnPosition = calculateSpawnPosition(i, mapSizeX, mapSizeY);
-                ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
-                entity.getVelocity().set(- objectVelocity, 0);
-                entity.makeLookDisabled();
+                List<ShipAPI> availableShips = availableEntitiesForSpawning.get(key);
+
+                if (!availableShips.isEmpty()) {
+                    ShipAPI entity = availableShips.remove(availableShips.size() - 1);
+                    entity.getLocation().set(spawnPosition);
+                    entity.getVelocity().set(- objectVelocity, 0);
+                    entity.makeLookDisabled();
+
+                } else {
+                    getLogger().info("Spawning Entity: " + entityID);
+                    ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
+                    entity.getVelocity().set(- objectVelocity, 0);
+                    entity.makeLookDisabled();
+                }
+
             }
         }
     }
