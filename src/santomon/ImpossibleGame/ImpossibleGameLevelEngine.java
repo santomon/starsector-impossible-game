@@ -37,11 +37,12 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public ImpossibleGameLevelEngine(int[][] levelData, float mapSizeX, float mapSizeY, HashMap<Integer, String> objectLookUpTable) {
 
         // spawn the jumper; 3 tiles away from the middle
-        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         this.levelData = levelData;
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
         this.objectLookUpTable = objectLookUpTable;
+
+        this.spawnInitialRow();
     }
 
 
@@ -71,6 +72,26 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         jumper.getLocation().set(newPosition);
     }
 
+
+    private void spawnInitialRow() {
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        CombatFleetManagerAPI enemyFleetManagerAPI = combatEngineAPI.getFleetManager(FleetSide.ENEMY);
+
+        if (this.levelData == null) return;
+
+        int i = this.levelData[0].length - 1;
+
+        Vector2f lowestPointSpawnPosition = calculateSpawnPosition(i, this.mapSizeX, this.mapSizeY);
+        Vector2f currentSpawnPosition = new Vector2f().set(lowestPointSpawnPosition);
+
+        while (currentSpawnPosition.x >= - mapSizeX / 2) {
+            ShipAPI groundShip = enemyFleetManagerAPI.spawnShipOrWing(objectLookUpTable.get(1), currentSpawnPosition, 90f);
+            groundShip.getVelocity().set(- objectVelocity, 0);
+            groundShip.makeLookDisabled();
+            currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
+        }
+
+    }
 
     public void spawnColumn(int[] column) {
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
