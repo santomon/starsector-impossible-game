@@ -157,7 +157,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         List<Integer> keycodes = new ArrayList<>();
         for (String id : ids) {
             Integer value = LunaSettings.getInt(IGMisc.LunaLibKeys.IG_MOD_ID, id);
-            if (value == null || value != 0) continue;
+            if (value == null || value == 0) continue;
             keycodes.add(value);
         }
         return keycodes;
