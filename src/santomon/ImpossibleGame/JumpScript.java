@@ -37,6 +37,9 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public void advance(float amount, List<InputEventAPI> events) {
         CombatEngineAPI engine = Global.getCombatEngine();
         if (engine.isPaused()) return;
+//        for (InputEventAPI event : events) {
+//            event.logEvent();
+//        }
 
         this.applyGravity(amount);
         this.maybeStopFall();
@@ -55,6 +58,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public void maybeInitiateJump(List<InputEventAPI> events) {
         if (!this.getJumpKeyPressed(events)) return;
+        getLogger().info("successfully triggered jump with keypress");
         if (this.jumper == null) return;
         initiateJump();
     }
@@ -138,18 +142,22 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
 
     public boolean getJumpKeyPressed(List<InputEventAPI> events) {
+        boolean result = false;
         for (InputEventAPI event : events) {
             if (event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) {
-                return true;
+                result = true;
             }
             for (Integer jumpKey : this.jumpKeys) {
                 if (event.getEventValue() == jumpKey) {
-                    return true;
+                    result = true;
                 }
             }
 
         }
-        return false;
+        if (result) {
+            getLogger().info("Jump Key Pressed!");
+        }
+        return result;
     }
 
     public static Logger getLogger() {
