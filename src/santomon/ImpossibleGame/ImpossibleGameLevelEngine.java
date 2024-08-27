@@ -25,7 +25,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public final float mapSizeX;
     public final float mapSizeY;
     public final HashMap<Integer, String> objectLookUpTable;
-    private final HashMap<Integer, List<ShipAPI>> availableEntitiesForSpawning;
+    private final HashMap<String, List<ShipAPI>> availableEntitiesForSpawning;
 
 
     public static final float objectVelocity = 1000f;
@@ -43,9 +43,11 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         this.mapSizeY = mapSizeY;
         this.objectLookUpTable = objectLookUpTable;
 
-        this.availableEntitiesForSpawning = new HashMap<Integer, List<ShipAPI>>() {{
-            for (Integer key : objectLookUpTable.keySet()) {
-                put(key, new ArrayList<ShipAPI>() );
+        this.availableEntitiesForSpawning = new HashMap<String, List<ShipAPI>>() {{
+            for (String entityID : objectLookUpTable.values()) {
+                if (entityID != null) {
+                    put(entityID, new ArrayList<ShipAPI>() );
+                }
             }
         }};
 
@@ -68,7 +70,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             this.currentLevelStage += 1;
 
             // prob enough if we do it only when we spawn shit
-            despawnObsoleteShips(this.mapSizeX, this.mapSizeY);
+            markObsoleteShipsForTeleportation(this.mapSizeX, this.mapSizeY, this.availableEntitiesForSpawning);
         }
 
     }
@@ -111,7 +113,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             String entityID = objectLookUpTable.get(key);
             if (entityID != null) {
                 Vector2f spawnPosition = calculateSpawnPosition(i, mapSizeX, mapSizeY);
-                List<ShipAPI> availableShips = availableEntitiesForSpawning.get(key);
+                List<ShipAPI> availableShips = availableEntitiesForSpawning.get(entityID);
 
                 if (!availableShips.isEmpty()) {
                     ShipAPI entity = availableShips.remove(availableShips.size() - 1);
@@ -150,6 +152,25 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         }
 
     }
+
+    public static void markObsoleteShipsForTeleportation(float mapSizeX, float mapSizeY, HashMap<String, List<ShipAPI>> availableShips) {
+        // not sure if this is even necessary, as the engine seems to despawn out of  bounds ships by itself or sth
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        CombatFleetManagerAPI fleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
+
+        for (ShipAPI ship : combatEngineAPI.getShips()) {
+            FleetMemberAPI fleetMemberAPI = ship.getFleetMember();
+            if (ship.getOwner() == 1 && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship, mapSizeX, mapSizeY )
+            ) {
+                String shipVariantID = ship.getVariant().getHullVariantId();
+                if (!availableShips.containsKey(shipVariantID)) continue;
+                if (availableShips.get(shipVariantID).contains(ship)) continue;
+                availableShips.get(shipVariantID).add(ship);
+            }
+        }
+
+    }
+
 
     public static void selfDamage() {
 
