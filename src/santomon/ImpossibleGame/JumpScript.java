@@ -83,7 +83,11 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     private void maybeStopFall() {
         if (this.getIsNearGround()) {
-            this.jumper.getVelocity().setY(0);
+            if (!this.gravityIsReversed) {
+                this.jumper.getVelocity().setY(Math.max(0, this.jumper.getVelocity().y));
+            } else {
+                this.jumper.getVelocity().setY(Math.min(0, this.jumper.getVelocity().y));
+            }
         };
 
     }
