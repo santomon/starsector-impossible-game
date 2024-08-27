@@ -106,7 +106,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public boolean getIsJustAbove(ShipAPI groundShip) {
         Vector2f jumperLocation = this.jumper.getLocation();
         Vector2f groundLocation = groundShip.getLocation();
-        float radius = groundShip.getCollisionRadius();
+        float radius = groundShip.getCollisionRadius() + this.jumper.getCollisionRadius();
         boolean jumperIsInXRange = jumperLocation.x > groundLocation.x - radius - this.settings.groundTolerance && jumperLocation.x < groundLocation.x + radius + this.settings.groundTolerance;
         if (!jumperIsInXRange) {
             return false;
