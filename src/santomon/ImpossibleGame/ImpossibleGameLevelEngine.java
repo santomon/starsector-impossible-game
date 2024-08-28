@@ -12,7 +12,6 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 
@@ -33,7 +32,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public static final float spawnInterval = objectVelocity * 0.0002f;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
-    public static final float tileSize = 150f;  // kite has  a collision radius of 64
+    public static final float tileSize = 128f;  // kite has  a collision radius of 64
 
 
     public ImpossibleGameLevelEngine(int[][] levelData, float mapSizeX, float mapSizeY, final HashMap<Integer, String> objectLookUpTable) {
@@ -93,17 +92,12 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
         Vector2f lowestPointSpawnPosition = calculateSpawnPosition(i, this.mapSizeX, this.mapSizeY);
         Vector2f currentSpawnPosition = new Vector2f().set(lowestPointSpawnPosition);
-        List<Float> xSpawnPositions = new LinkedList<Float>();
 
         while (currentSpawnPosition.x >= - mapSizeX / 2) {
-            xSpawnPositions.add(0, currentSpawnPosition.x);
-            currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
-        }
-
-        for (float xSpawnPosition : xSpawnPositions) {
-            ShipAPI groundShip = enemyFleetManagerAPI.spawnShipOrWing(objectLookUpTable.get(1), new Vector2f(xSpawnPosition, lowestPointSpawnPosition.y), 90f);
+            ShipAPI groundShip = enemyFleetManagerAPI.spawnShipOrWing(objectLookUpTable.get(1), currentSpawnPosition, 90f);
             groundShip.getVelocity().set(- objectVelocity, 0);
             groundShip.makeLookDisabled();
+            currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
         }
 
     }
