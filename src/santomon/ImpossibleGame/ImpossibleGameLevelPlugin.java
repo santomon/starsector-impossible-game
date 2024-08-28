@@ -106,6 +106,14 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTaken);
 
         this.createJumper();
+
+        // isolating enemy flagship
+        ShipAPI enemyFlagship = getEnemyFlagship();
+        if (enemyFlagship != null) {
+            enemyFlagship.getLocation().set(new Vector2f(mapSizeX / 2 - 10, mapSizeY / 2 - 10));
+            enemyFlagship.makeLookDisabled();
+            enemyFlagship.setPhased(true);
+        }
     }
 
    public void createJumper() {
@@ -166,6 +174,16 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         Logger logger = Global.getLogger(ImpossibleGameLevelPlugin.class);
         logger.setLevel(Level.INFO);
         return logger;
+    }
+
+    public static ShipAPI getEnemyFlagship() {
+        CombatEngineAPI engine = Global.getCombatEngine();
+        for (ShipAPI ship : engine.getShips()) {
+            if (ship.getOwner() == 1 && ship.getFleetMember().isFlagship()) {
+                return ship;
+            }
+        }
+        return null;
     }
 }
 
