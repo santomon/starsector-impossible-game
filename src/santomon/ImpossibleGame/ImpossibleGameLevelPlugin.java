@@ -14,6 +14,7 @@ import lunalib.lunaSettings.LunaSettings;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
@@ -25,10 +26,9 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public final String jumperVariantID;
 
     public ImpossibleGameLevelEngine impossibleGameLevelEngine;
-    public static final Character jumpKey = ' ';  // ok this works
-    public static final Character alternativeJumpKey = 'M';
-    private ShipAPI jumper;
-    private JumpScript jumpScript;
+    public ShipAPI jumper;
+    public JumpScript jumpScript;
+    public KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTakenScript;
 
 
     public static final HashMap<Integer, String> objectLookUpTable = new HashMap<Integer, String>() {{
@@ -84,6 +84,15 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             hasCalledFakeInit = true;
         }
 
+
+        // maybe quickrestart
+        if (this.quickRestartPressed(events)) {
+            this.cleanUp();
+        }
+
+
+
+        // freeze playerShip
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
         playerShip.setControlsLocked(true);
         playerShip.setPhased(true);
@@ -102,8 +111,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.mapSizeX, this.mapSizeY, objectLookUpTable);
         engine.addPlugin(this.impossibleGameLevelEngine);
 
-        KillPlayerWhenAnyPlayerDamageIsTaken killPlayerWhenAnyPlayerDamageIsTaken = new KillPlayerWhenAnyPlayerDamageIsTaken();
-        engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTaken);
+        this.killPlayerWhenAnyPlayerDamageIsTakenScript = new KillPlayerWhenAnyPlayerDamageIsTaken();
+        engine.getListenerManager().addListener(killPlayerWhenAnyPlayerDamageIsTakenScript);
 
         this.createJumper();
 
@@ -174,6 +183,32 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         Logger logger = Global.getLogger(ImpossibleGameLevelPlugin.class);
         logger.setLevel(Level.INFO);
         return logger;
+    }
+
+    private boolean quickRestartPressed(List<InputEventAPI> events) {
+        for (InputEventAPI event : events) {
+            for (int key : this.keyBindings.quickRestartKeys) {
+                if (key == event.getEventValue()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void cleanUp() {
+        CombatEngineAPI engine = Global.getCombatEngine();
+
+        engine.removeEntity(this.jumper);
+        engine.removePlugin(this.impossibleGameLevelEngine);
+        engine.removePlugin(this.jumpScript);
+        engine.getListenerManager().removeListener(this.killPlayerWhenAnyPlayerDamageIsTakenScript);
+
+        for (ShipAPI ship : engine.getShips()) {
+            if (Objects.equals(ship.getId(), engine.getPlayerShip().getId())) continue;
+            engine.removeEntity(ship);
+        }
+        this.hasCalledFakeInit = false;
     }
 
     public static ShipAPI getEnemyFlagship() {
