@@ -1,4 +1,4 @@
-package data.missions.xddmission;
+package santomon.ImpossibleGame;
 
 public class IGMisc {
 

@@ -5,7 +5,6 @@ import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
-import data.missions.xddmission.IGMisc;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
