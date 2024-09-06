@@ -1,9 +1,7 @@
 package santomon.ImpossibleGame;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
-import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import org.apache.log4j.Level;
@@ -48,6 +46,22 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         this.maybeStopFall();
         this.maybeInitiateJump(events);
         this.maybeApplyRotation(amount);
+        this.maybeApplyEngineEffect(amount);
+    }
+
+    private void maybeApplyEngineEffect(float timePassed) {
+
+        for (ShipEngineControllerAPI.ShipEngineAPI shipEngine : this.jumper.getEngineController().getShipEngines()) {
+            if (this.jumper.getFacing() == targetAngle) {
+                // full speed ahead
+                // wait, how do we """get""" the current flame level 💀
+                this.jumper.getEngineController().setFlameLevel(shipEngine.getEngineSlot(), 1);
+            } else {
+                this.jumper.getEngineController().setFlameLevel(shipEngine.getEngineSlot(), 0.4f);
+            }
+
+        }
+
     }
 
 

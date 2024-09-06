@@ -127,8 +127,9 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
    public void createJumper() {
         CombatEngineAPI engine = Global.getCombatEngine();
        this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(0,0), 0);  // facing of 0 === looking to the right
-       this.jumper.makeLookDisabled();
+//       this.jumper.makeLookDisabled();
        this.jumper.getVelocity().set(0, 0);
+       this.jumper.setShipAI(new DontMoveAI());
 
        this.jumpScript = new JumpScript(this.jumper, groundShipIDs, this.jumpSettings, this.keyBindings.jumpKeys);
        engine.addPlugin(this.jumpScript);
