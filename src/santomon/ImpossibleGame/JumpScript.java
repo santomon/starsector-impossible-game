@@ -23,6 +23,8 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final JumpSettings settings;
     public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
+    public static final float rotationSpeed = 180f;  // for now, lets say deg/sec
+    public static final float targetAngle = 0;  // looking to the right
 
     public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Integer> jumpKeys) {
         this.groundShipIDs = groundShipIDs;
@@ -44,6 +46,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         this.applyGravity(amount);
         this.maybeStopFall();
         this.maybeInitiateJump(events);
+        this.maybeApplyRotation(amount);
     }
 
 
@@ -61,6 +64,31 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         getLogger().info("successfully triggered jump with keypress");
         if (this.jumper == null) return;
         initiateJump();
+    }
+
+    private void maybeApplyRotation(float timePassed) {
+        if (this.jumper.getVelocity().y != 0) {
+            this.applyRotation(timePassed);
+        } else {
+            this.applyRotation(timePassed, targetAngle);
+        }
+
+    }
+
+
+    private void applyRotation(float timePassed) {
+        float currentFacing = this.jumper.getFacing();
+        this.jumper.setFacing(currentFacing + timePassed * rotationSpeed);
+    }
+
+    private void applyRotation(float timePassed, float _targetAngle) {
+        float currentFacing = this.jumper.getFacing();
+        if (currentFacing == _targetAngle) return;
+        if (Math.abs(currentFacing - _targetAngle) < 5f) {
+            this.jumper.setFacing(_targetAngle);
+        } else {
+            applyRotation(timePassed);
+        }
     }
 
 
