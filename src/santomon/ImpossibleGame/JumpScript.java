@@ -21,7 +21,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final JumpSettings settings;
     public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
-    public static final float rotationSpeed = 720f;  // for now, lets say deg/sec
+    public static final float rotationSpeed = 1080f;  // for now, lets say deg/sec
     public static final float targetAngle = 0;  // looking to the right
     public static final float rotationSnapRange = rotationSpeed / 36f;
 
