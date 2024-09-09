@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector2f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 
 public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
@@ -26,10 +27,12 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public final float mapSizeY;
     public final HashMap<Integer, String> objectLookUpTable;
     private final HashMap<String, List<ShipAPI>> availableEntitiesForSpawning;
+    private ShipAPI someGroundShip;
 
 
-    public static final float objectVelocity = 1000f;
-    public static final float spawnInterval = objectVelocity * 0.0002f;
+    public static final float objectVelocity = 3000f;
+    public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
+    public static final float spawnInterval = objectVelocity * 0.00006f;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
     public static final float tileSize = 128f;  // kite has  a collision radius of 64
@@ -61,8 +64,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         if (combatEngineAPI.isPaused()) return;
 
-        this.currentSecondStack += amount;
 
+        this.currentSecondStack += amount;
         if (this.currentSecondStack >= spawnInterval) {
             this.currentSecondStack = 0;
             if (this.currentLevelStage >= this.levelData.length) return;  // we are finished with the level
@@ -71,6 +74,10 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
             // prob enough if we do it only when we spawn shit
             markObsoleteShipsForTeleportation(this.mapSizeX, this.mapSizeY, this.availableEntitiesForSpawning);
+        }
+
+        if (this.someGroundShip != null) {
+            getLogger().info("Ground Ship Velocity: " + this.someGroundShip.getVelocity());
         }
 
     }
@@ -118,16 +125,27 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
                 if (!availableShips.isEmpty()) {
                     ShipAPI entity = availableShips.remove(availableShips.size() - 1);
                     entity.getLocation().set(spawnPosition);
-                    entity.getVelocity().set(- objectVelocity, 0);
                     entity.makeLookDisabled();
 
                 } else {
                     getLogger().info("Spawning Entity: " + entityID);
                     ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
-                    entity.getVelocity().set(- objectVelocity, 0);
+                    if (this.someGroundShip == null) this.someGroundShip = entity;
+                    entity.addListener(new ConstantSpeedOverride(entity, targetVelocity));
                     entity.makeLookDisabled();
                 }
 
+            }
+        }
+    }
+
+    private void overrideVelocities() {
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        for (ShipAPI ship : combatEngineAPI.getShips()) {
+            for (String entityID : objectLookUpTable.values()) {
+                if (Objects.equals(ship.getVariant().getHullVariantId(), entityID)) {
+                    ship.getVelocity().set(- objectVelocity, 0);
+                }
             }
         }
     }
