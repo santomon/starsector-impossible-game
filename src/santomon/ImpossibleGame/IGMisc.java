@@ -21,7 +21,7 @@ public class IGMisc {
     public static class LunaLibKeys {
         public static final String IG_DEFENDER_VARIANT_ID = "defender_ImpossibleGame";
         public static final String IG_KITE_VARIANT_ID = "kite_ImpossibleGame";
-        public static final String IG_HERMES_VARIANT_ID = "hermes_ImpossibleGame";
+        public static final String IG_HERMES_VARIANT_ID = "impossible_hermes_variant";
 
         public static final String JUMPER_VARIANT_ID = "impossible_jumperVariantID";
 

@@ -40,8 +40,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
 		// Set up the enemy fleet.
 //		api.addToFleet(FleetSide.ENEMY, "enforcer_Elite", FleetMemberType.SHIP, "HSS Judicature", true);
-		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "hermes_ImpossibleGame", FleetMemberType.SHIP, "xdd Cain", true);
-		api.addToFleet(FleetSide.ENEMY, "hermes_ImpossibleGame", FleetMemberType.SHIP, "xdd Enemy", true);
+		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Cain", true);
+		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Enemy", true);
 		CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
 		ShipAPI ship = combatEngineAPI.getPlayerShip();
 

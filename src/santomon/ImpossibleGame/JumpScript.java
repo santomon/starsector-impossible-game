@@ -19,6 +19,8 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final JumpSettings jumpSettings;
     public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
+    public static final float realJumpForce = 10 * 9000;
+
     public static final float rotationSpeed = 1080f;  // for now, lets say deg/sec
     public static final float targetAngle = 0;  // looking to the right
     public static final float rotationSnapRange = rotationSpeed / 36f;
@@ -110,10 +112,10 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public void initiateJump() {
         if (this.getJumpingState() == JumpingState.GROUND) {
-            getLogger().info("jumping with Force: " + this.jumpSettings.jumpForce);
+            getLogger().info("jumping with Force: " + realJumpForce);
             int signum = !this.gravityIsReversed ? 1 : -1;
             Vector2f direction = new Vector2f(0, signum);
-            CombatUtils.applyForce(this.jumper, direction, this.jumpSettings.jumpForce );
+            CombatUtils.applyForce(this.jumper, direction, realJumpForce );
         }
     }
 
@@ -139,8 +141,10 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
         float dV_y = - signum * amount * Math.abs(this.jumpSettings.gravity);
         Vector2f oldVelocity = jumper.getVelocity();
+        getLogger().info("oldVelocity: " + oldVelocity);
         float maybe_new_V_y = oldVelocity.y + dV_y;
         float new_V_y = maybe_new_V_y;
+        getLogger().info("newVy: " + new_V_y);
 //        float new_V_y = Math.abs(maxVelocity) < Math.abs(maybe_new_V_y) ? Math.signum(maybe_new_V_y) * Math.abs(maxVelocity) : maybe_new_V_y;
         jumper.getVelocity().setY(new_V_y);
     }
@@ -223,10 +227,11 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public static float computeInitialVelocity(float desiredJumpHeight, float gravity, float tileSize) {
         // solve s̈ = g;
-        float c = 2;
+        float c = 1;
         double t = Math.sqrt( 2 * gravity * desiredJumpHeight * tileSize);
         double initialVelocity =  c * gravity * t;
-        return (float) initialVelocity;
+        return 2000f;
+//        return (float) initialVelocity;
     }
 
     public static Logger getLogger() {

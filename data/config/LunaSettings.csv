@@ -1,7 +1,7 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 impossible_shipChoicesHeader,Ship Choices Header,Header,Ship Choices,,,,,
 impossible_shipChoiceText,Ship Choices Help,Text,"enter a valid variant id here. All Parameters have been calibrated to be used with Hermes, Defender and Kite, so different Ships might require some tuning of physics parameters",,,,,
-impossible_jumperVariantID,Jumper ID,String,hermes_ImpossibleGame,,,,,
+impossible_jumperVariantID,Jumper ID,String,impossible_hermes_variant,,,,,
 ,,,,,,,,
 impossible_keyBindingsHeader,Key Bindings,Header,Key Bindings,,,,,
 impossible_jumpKey,Jump Key,Keycode,16,,,,,

@@ -2,11 +2,11 @@
     "displayName": "Impossible",
     "fluxCapacitors": 9,
     "fluxVents": 9,
-    "hullId": "hermes",
+    "hullId": "impossible_hermes",
     "hullMods": ["missleracks"],
     "permaMods": ["missleracks"],
     "quality": 0,
-    "variantId": "hermes_ImpossibleGame",
+    "variantId": "impossible_hermes_variant",
     "weaponGroups": [{
         "autofire": true,
         "mode": "LINKED",
