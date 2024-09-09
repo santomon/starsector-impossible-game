@@ -102,7 +102,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
         while (currentSpawnPosition.x >= - mapSizeX / 2) {
             ShipAPI groundShip = enemyFleetManagerAPI.spawnShipOrWing(objectLookUpTable.get(1), currentSpawnPosition, 90f);
-            groundShip.getVelocity().set(- objectVelocity, 0);
+            groundShip.addListener(new ConstantSpeedOverride(groundShip, targetVelocity));
             groundShip.makeLookDisabled();
             currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
         }
