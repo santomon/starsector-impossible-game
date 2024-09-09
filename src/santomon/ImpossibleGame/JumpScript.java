@@ -19,6 +19,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final JumpSettings jumpSettings;
     public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
+    private Float currentVelocity = 0f;  // need to have our own velocity buffer, due to some overriding magic of the setVelocity method or sth
     public static final float realJumpForce = 10 * 9000;
 
     public static final float rotationSpeed = 1080f;  // for now, lets say deg/sec
@@ -44,6 +45,9 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 //            event.logEvent();
 //        }
 
+        if (currentVelocity!= null) {
+            this.jumper.getVelocity().setY(currentVelocity);
+        }
         this.applyGravity(amount);
         this.maybeStopFall();
         this.maybeInitiateJump(events);
@@ -122,11 +126,14 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public void initiateJump2() {
         if (this.getJumpingState() == JumpingState.GROUND) {
             float initialVelocity = computeInitialVelocity(desiredJumpHeight, jumpSettings.gravity, getTileSize(groundShipIDs));
-            getLogger().info("jumping with initial Velocity: " + initialVelocity);
             int signum = !this.gravityIsReversed ? 1 : -1;
             Vector2f direction = new Vector2f(0, signum);
             direction.set(direction.x * initialVelocity, direction.y * initialVelocity);
+
+            currentVelocity = direction.y;
             this.jumper.getVelocity().set(this.jumper.getVelocity().x + direction.x, this.jumper.getVelocity().y + direction.y);
+            getLogger().info("initiating jump with initial Velocity: " + initialVelocity);
+            getLogger().info("actual velocity: " + this.jumper.getVelocity());
         }
 
     }
@@ -140,10 +147,12 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         int signum = !this.gravityIsReversed ? 1 : -1;
 
         float dV_y = - signum * amount * Math.abs(this.jumpSettings.gravity);
-        Vector2f oldVelocity = jumper.getVelocity();
+//        Vector2f oldVelocity = jumper.getVelocity();
+        float oldVelocity = currentVelocity;
         getLogger().info("oldVelocity: " + oldVelocity);
-        float maybe_new_V_y = oldVelocity.y + dV_y;
+        float maybe_new_V_y = oldVelocity + dV_y;
         float new_V_y = maybe_new_V_y;
+        currentVelocity = maybe_new_V_y;
         getLogger().info("newVy: " + new_V_y);
 //        float new_V_y = Math.abs(maxVelocity) < Math.abs(maybe_new_V_y) ? Math.signum(maybe_new_V_y) * Math.abs(maxVelocity) : maybe_new_V_y;
         jumper.getVelocity().setY(new_V_y);
@@ -154,8 +163,10 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         if (this.getIsNearGround()) {
             if (!this.gravityIsReversed) {
                 this.jumper.getVelocity().setY(Math.max(0, this.jumper.getVelocity().y));
+                currentVelocity = this.jumper.getVelocity().y;
             } else {
                 this.jumper.getVelocity().setY(Math.min(0, this.jumper.getVelocity().y));
+                currentVelocity = this.jumper.getVelocity().y;
             }
         };
 
