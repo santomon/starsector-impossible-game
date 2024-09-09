@@ -18,7 +18,6 @@ public class IGMisc {
         return transposedMatrix;
     }
 
-
     public static class LunaLibKeys {
         public static final String IG_DEFENDER_VARIANT_ID = "defender_ImpossibleGame";
         public static final String IG_KITE_VARIANT_ID = "kite_ImpossibleGame";
@@ -36,6 +35,11 @@ public class IGMisc {
         public static final String ALTERNATIVE_JUMP_KEY_ID = "impossible_alternativeJumpKey";
         public static final String QUICK_RESTART_KEY_ID = "impossible_quickRestartKey";
 
+    }
+
+
+    public static class FALLBACK_VALUES {
+        public static final Integer DEFAULT_TILE_SIZE = 100;
     }
 
 

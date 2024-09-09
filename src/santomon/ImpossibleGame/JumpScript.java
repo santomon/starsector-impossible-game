@@ -7,10 +7,8 @@ import com.fs.starfarer.api.input.InputEventType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.combat.CombatUtils;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,17 +16,19 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public final List<String> groundShipIDs;
     public final ShipAPI jumper;
-    public final JumpSettings settings;
+    public final JumpSettings jumpSettings;
     public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
     public static final float rotationSpeed = 1080f;  // for now, lets say deg/sec
     public static final float targetAngle = 0;  // looking to the right
     public static final float rotationSnapRange = rotationSpeed / 36f;
 
+    public static final float desiredJumpHeight = 3.5f;
+
     public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Integer> jumpKeys) {
         this.groundShipIDs = groundShipIDs;
         this.jumper = jumper;
-        this.settings = settings;
+        this.jumpSettings = settings;
         this.jumpKeys = jumpKeys;
     }
 
@@ -76,9 +76,9 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public void maybeInitiateJump(List<InputEventAPI> events) {
         if (!this.getJumpKeyPressed(events)) return;
-        getLogger().info("successfully triggered jump with keypress");
         if (this.jumper == null) return;
-        initiateJump();
+        getLogger().info("successfully triggered jump with keypress");
+        initiateJump2();
     }
 
     private void maybeApplyRotation(float timePassed) {
@@ -110,21 +110,38 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public void initiateJump() {
         if (this.getJumpingState() == JumpingState.GROUND) {
-            getLogger().info("jumping with Force: " + this.settings.jumpForce);
+            getLogger().info("jumping with Force: " + this.jumpSettings.jumpForce);
             int signum = !this.gravityIsReversed ? 1 : -1;
             Vector2f direction = new Vector2f(0, signum);
-            CombatUtils.applyForce(this.jumper, direction, this.settings.jumpForce );
+            CombatUtils.applyForce(this.jumper, direction, this.jumpSettings.jumpForce );
         }
     }
 
+    public void initiateJump2() {
+        if (this.getJumpingState() == JumpingState.GROUND) {
+            float initialVelocity = computeInitialVelocity(desiredJumpHeight, jumpSettings.gravity, getTileSize(groundShipIDs));
+            getLogger().info("jumping with initial Velocity: " + initialVelocity);
+            int signum = !this.gravityIsReversed ? 1 : -1;
+            Vector2f direction = new Vector2f(0, signum);
+            direction.set(direction.x * initialVelocity, direction.y * initialVelocity);
+            this.jumper.getVelocity().set(this.jumper.getVelocity().x + direction.x, this.jumper.getVelocity().y + direction.y);
+        }
+
+    }
+
     private void applyGravity(float amount) {
+
+        float maxVelocity = computeInitialVelocity(desiredJumpHeight, jumpSettings.gravity, getTileSize(groundShipIDs));
+//        float maxVelocity = this.jumpSettings.maxVelocity;
+
         if (this.jumper == null) return;
         int signum = !this.gravityIsReversed ? 1 : -1;
 
-        float dV_y = - signum * amount * Math.abs(this.settings.gravity);
+        float dV_y = - signum * amount * Math.abs(this.jumpSettings.gravity);
         Vector2f oldVelocity = jumper.getVelocity();
         float maybe_new_V_y = oldVelocity.y + dV_y;
-        float new_V_y = Math.abs(this.settings.maxVelocity) < Math.abs(maybe_new_V_y) ? Math.signum(maybe_new_V_y) * Math.abs(this.settings.maxVelocity) : maybe_new_V_y;
+        float new_V_y = maybe_new_V_y;
+//        float new_V_y = Math.abs(maxVelocity) < Math.abs(maybe_new_V_y) ? Math.signum(maybe_new_V_y) * Math.abs(maxVelocity) : maybe_new_V_y;
         jumper.getVelocity().setY(new_V_y);
     }
 
@@ -159,16 +176,16 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         Vector2f jumperLocation = this.jumper.getLocation();
         Vector2f groundLocation = groundShip.getLocation();
         float radius = groundShip.getCollisionRadius() + this.jumper.getCollisionRadius();
-        boolean jumperIsInXRange = jumperLocation.x > groundLocation.x - radius - this.settings.groundTolerance && jumperLocation.x < groundLocation.x + radius + this.settings.groundTolerance;
+        boolean jumperIsInXRange = jumperLocation.x > groundLocation.x - radius - this.jumpSettings.groundTolerance && jumperLocation.x < groundLocation.x + radius + this.jumpSettings.groundTolerance;
         if (!jumperIsInXRange) {
             return false;
         }
 
         boolean jumperIsInYRange;
         if (!gravityIsReversed) {
-            jumperIsInYRange  = jumperLocation.y > groundLocation.y + radius - this.settings.groundTolerance && jumperLocation.y < groundLocation.y + radius + this.settings.groundTolerance;
+            jumperIsInYRange  = jumperLocation.y > groundLocation.y + radius - this.jumpSettings.groundTolerance && jumperLocation.y < groundLocation.y + radius + this.jumpSettings.groundTolerance;
         } else {
-            jumperIsInYRange  = jumperLocation.y < groundLocation.y - radius + this.settings.groundTolerance && jumperLocation.y > groundLocation.y - radius - this.settings.groundTolerance;
+            jumperIsInYRange  = jumperLocation.y < groundLocation.y - radius + this.jumpSettings.groundTolerance && jumperLocation.y > groundLocation.y - radius - this.jumpSettings.groundTolerance;
         }
         return jumperIsInYRange;
     }
@@ -204,9 +221,35 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         return result;
     }
 
+    public static float computeInitialVelocity(float desiredJumpHeight, float gravity, float tileSize) {
+        // solve s̈ = g;
+        float c = 2;
+        double t = Math.sqrt( 2 * gravity * desiredJumpHeight * tileSize);
+        double initialVelocity =  c * gravity * t;
+        return (float) initialVelocity;
+    }
+
     public static Logger getLogger() {
         Logger logger = Global.getLogger(JumpScript.class);
         logger.setLevel(Level.INFO);
         return logger;
     }
+
+    public static float getTileSize(List<String> groundShipIDs) {
+        // for now lets determine the tilesize using the first ground ship;
+        if (groundShipIDs.isEmpty()) {
+            return IGMisc.FALLBACK_VALUES.DEFAULT_TILE_SIZE;
+        }
+
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        for (ShipAPI ship : combatEngineAPI.getShips()) {
+            if (ship.getVariant().getHullVariantId().equals(groundShipIDs.get(0))) {
+                return ship.getCollisionRadius() * 2;
+            }
+        }
+        getLogger().warn("trying to retrieve Tile Size while no existing ships match the first groundShipID. using fallback tilesize...");
+        return IGMisc.FALLBACK_VALUES.DEFAULT_TILE_SIZE;
+
+    }
 }
+
