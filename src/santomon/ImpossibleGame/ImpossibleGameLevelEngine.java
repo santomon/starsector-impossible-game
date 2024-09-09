@@ -30,12 +30,15 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     private ShipAPI someGroundShip;
 
 
-    public static final float objectVelocity = 3000f;
+
+    public static final float objectVelocityI = 3000f;
+    public static final float objectVelocity = 10000f;
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
-    public static final float spawnInterval = objectVelocity * 0.00006f;
+    public static final float spawnInterval = objectVelocityI * 0.00006f;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
     public static final float tileSize = 128f;  // kite has  a collision radius of 64
+
 
 
     public ImpossibleGameLevelEngine(int[][] levelData, float mapSizeX, float mapSizeY, final HashMap<Integer, String> objectLookUpTable) {

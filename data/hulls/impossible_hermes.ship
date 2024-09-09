@@ -93,7 +93,7 @@
         0
     ],
     "shieldRadius": 57,
-    "spriteName": "graphics/ships/hermes/hermes_base.png",
+    "spriteName": "graphics/impossible_hermes_base.png",
     "style": "MIDLINE",
     "viewOffset": 0,
     "weaponSlots": [

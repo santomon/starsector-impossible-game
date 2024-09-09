@@ -2,11 +2,11 @@
     "displayName": "Impossible",
     "fluxCapacitors": 6,
     "fluxVents": 6,
-    "hullId": "defender",
+    "hullId": "impossible_defender",
     "hullMods": ["missleracks"],
     "permaMods": ["missleracks"],
     "quality": 0,
-    "variantId": "defender_ImpossibleGame",
+    "variantId": "impossible_defender_variant",
     "weaponGroups": [{
         "autofire": true,
         "mode": "LINKED",
