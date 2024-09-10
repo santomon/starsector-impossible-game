@@ -19,6 +19,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final JumpSettings jumpSettings;
     public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
+    private boolean isHoldingMouse = false;
 
     public static final float rotationSpeed = 1080f;  // for now, lets say deg/sec
     public static final float targetAngle = 0;  // looking to the right
@@ -196,10 +197,22 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public boolean getJumpKeyPressed(List<InputEventAPI> events) {
         boolean result = false;
+
         for (InputEventAPI event : events) {
-            if (event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) {
+            event.logEvent();
+        }
+
+        for (InputEventAPI event : events) {
+            if ((event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) || isHoldingMouse) {
+                this.isHoldingMouse = true;
                 result = true;
             }
+
+            if (event.getEventType() == InputEventType.MOUSE_UP && event.getEventValue() == 0) {
+                this.isHoldingMouse = false;
+                result = false;
+            }
+
             for (Integer jumpKey : this.jumpKeys) {
                 if (event.getEventValue() == jumpKey) {
                     result = true;
