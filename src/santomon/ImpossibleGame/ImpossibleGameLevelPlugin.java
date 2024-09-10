@@ -155,14 +155,13 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         try{
             String levelDataRaw = Global.getSettings().loadText("data/missions/"+levelName+"/level_data.txt");
             String[] Q = levelDataRaw.split("\n");
-            String firstRow = Q[0].endsWith(",") ? Q[0].substring(0, Q[0].length()-1) : Q[0];
-            int[][] data = new int[Q.length][firstRow.split(",").length];
+            String firstRow = Q[0];
+            int[][] data = new int[Q.length][firstRow.length()];
 
             for (int i = 0; i < Q.length; i++) {
-                String charactersTMP = Q[i].endsWith(",") ? Q[i].substring(0, Q[i].length()-1) : Q[i];
-                String[] characters = charactersTMP.split(",");
-                for (int j = 0; j < characters.length; j++) {
-                    data[i][j] = Integer.parseInt(characters[j]);
+                String characters = Q[i];
+                for (int j = 0; j < characters.length(); j++) {
+                    data[i][j] = Integer.parseInt(String.valueOf(characters.charAt(j)));
                 }
             }
             int[][] result = IGMisc.transposeMatrix(data);
