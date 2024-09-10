@@ -19,7 +19,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final JumpSettings jumpSettings;
     public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
-    public static final float realJumpForce = 10 * 9000;
 
     public static final float rotationSpeed = 1080f;  // for now, lets say deg/sec
     public static final float targetAngle = 0;  // looking to the right
@@ -112,15 +111,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
         }
     }
 
-
-    public void initiateJump() {
-        if (this.getJumpingState() == JumpingState.GROUND) {
-            getLogger().info("jumping with Force: " + realJumpForce);
-            int signum = !this.gravityIsReversed ? 1 : -1;
-            Vector2f direction = new Vector2f(0, signum);
-            CombatUtils.applyForce(this.jumper, direction, realJumpForce );
-        }
-    }
 
     public void initiateJump2() {
         if (this.getJumpingState() == JumpingState.GROUND) {
