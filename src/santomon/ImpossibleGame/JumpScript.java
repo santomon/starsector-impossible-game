@@ -25,14 +25,16 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public static final float rotationSpeed = 1080f;  // for now, lets say deg/sec
     public static final float targetAngle = 0;  // looking to the right
     public static final float rotationSnapRange = rotationSpeed / 36f;
+    public static final float timeMultiplier = 2f;
 
-    public static final float desiredJumpHeight = 3.5f;
+    public static final float desiredJumpHeight = 6.5f;
 
     public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Integer> jumpKeys) {
         this.groundShipIDs = groundShipIDs;
         this.jumper = jumper;
         this.jumpSettings = settings;
         this.jumpKeys = jumpKeys;
+        this.jumper.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
     }
 
 

@@ -34,6 +34,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         put(0, null);
         put(1, IGMisc.LunaLibKeys.IG_DEFENDER_VARIANT_ID);  // block
         put(2, IGMisc.LunaLibKeys.IG_KITE_VARIANT_ID);  // spikes
+        put(9, null);  // some other null markers
     }
     };
     public static final List<String> groundShipIDs = new ArrayList<String>() {{
@@ -97,7 +98,16 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         playerShip.setPhased(true);
         playerShip.getVelocity().set(new Vector2f(0, 0));
         playerShip.getLocation().set(new Vector2f(0, 0));
-    }
+
+        // freeze enemy flagship
+        ShipAPI enemyFlagship = getEnemyFlagship();
+        if (enemyFlagship != null) {
+            enemyFlagship.setPhased(true);
+            enemyFlagship.getVelocity().set(new Vector2f(0, 0));
+            enemyFlagship.getLocation().set(new Vector2f(-10, 0));
+
+        }
+     }
 
     @Override
     public void init(CombatEngineAPI engine) {
@@ -118,8 +128,9 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         // isolating enemy flagship
         ShipAPI enemyFlagship = getEnemyFlagship();
         if (enemyFlagship != null) {
-            enemyFlagship.getLocation().set(new Vector2f(mapSizeX / 2 - 10, mapSizeY / 2 - 10));
-            enemyFlagship.makeLookDisabled();
+            enemyFlagship.getLocation().set(new Vector2f(-10,  - 10));
+            enemyFlagship.setShipAI(new DontMoveAI());
+            enemyFlagship.getVelocity().set(0, 0);
             enemyFlagship.setPhased(true);
         }
     }

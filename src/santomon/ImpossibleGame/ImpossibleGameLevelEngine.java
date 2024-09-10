@@ -31,10 +31,12 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
 
 
-    public static final float objectVelocity = 600f;
+    public static final float objectVelocityI = 600f;
+    public static final float objectVelocity = 1000f;
+    public static final float timeMultiplier = 2f;
     public static final float tileSize = 128f;  // kite has  a collision radius of 64
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
-    public static final float spawnInterval = tileSize / objectVelocity;
+    public static final float spawnInterval = tileSize / objectVelocityI / timeMultiplier;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
 
@@ -104,7 +106,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
         while (currentSpawnPosition.x >= - mapSizeX / 2) {
             ShipAPI groundShip = enemyFleetManagerAPI.spawnShipOrWing(objectLookUpTable.get(1), currentSpawnPosition, 90f);
-            groundShip.addListener(new ConstantSpeedOverride(groundShip, targetVelocity));
+            groundShip.getVelocity().set(targetVelocity);
+            groundShip.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
             groundShip.makeLookDisabled();
             currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
         }
@@ -133,7 +136,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
                     getLogger().info("Spawning Entity: " + entityID);
                     ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
                     if (this.someGroundShip == null) this.someGroundShip = entity;
-                    entity.addListener(new ConstantSpeedOverride(entity, targetVelocity));
+                    entity.getVelocity().set(targetVelocity);
+                    entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
                     entity.makeLookDisabled();
                 }
 
