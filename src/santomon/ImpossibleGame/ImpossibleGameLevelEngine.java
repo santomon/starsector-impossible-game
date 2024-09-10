@@ -101,10 +101,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         Vector2f currentSpawnPosition = new Vector2f().set(lowestPointSpawnPosition);
 
         while (currentSpawnPosition.x >= - mapSizeX / 2) {
-            ShipAPI groundShip = enemyFleetManagerAPI.spawnShipOrWing(objectLookUpTable.get(1), currentSpawnPosition, 90f);
-            groundShip.getVelocity().set(targetVelocity);
-            groundShip.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
-            groundShip.makeLookDisabled();
+            String entityID = objectLookUpTable.get(1);
+            ShipAPI groundShip = spawnEntity(entityID, currentSpawnPosition);
             currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
         }
 
@@ -112,7 +110,6 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public boolean[] spawnColumn(int[] column, boolean[] previouslyCreated) {
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-        CombatFleetManagerAPI enemyFleetManagerAPI = combatEngineAPI.getFleetManager(FleetSide.ENEMY);
 
         boolean[] spawnedShit = new boolean[column.length];
 
@@ -131,32 +128,16 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
                 ShipAPI entity;
                 if (!availableShips.isEmpty()) {
                     entity = availableShips.remove(availableShips.size() - 1);
-                    entity.getLocation().set(spawnPosition);
-
+                    teleportEntityFromSafety(entity, spawnPosition);
                 } else {
-                    getLogger().info("Spawning Entity: " + entityID);
-                    entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
-                    entity.getVelocity().set(targetVelocity);
-                    entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
+                    entity = spawnEntity(entityID, spawnPosition);
                 }
                 spawnedShit[i] = true;
-                entity.makeLookDisabled();
-
             }
         }
         return spawnedShit;
     }
 
-    private void overrideVelocities() {
-        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-        for (ShipAPI ship : combatEngineAPI.getShips()) {
-            for (String entityID : objectLookUpTable.values()) {
-                if (Objects.equals(ship.getVariant().getHullVariantId(), entityID)) {
-                    ship.getVelocity().set(- objectVelocity, 0);
-                }
-            }
-        }
-    }
 
     public static Vector2f calculateSpawnPosition(int i, float mapSizeX, float mapSizeY) {
         float Y = mapSizeY / 2f - topPadding - i * tileSize;
@@ -192,8 +173,32 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
                 if (!availableShips.containsKey(shipVariantID)) continue;
                 if (availableShips.get(shipVariantID).contains(ship)) continue;
                 availableShips.get(shipVariantID).add(ship);
+                teleportEntityToSafety(ship);
             }
         }
+    }
+
+    public static void teleportEntityToSafety(ShipAPI entity) {
+        entity.setPhased(true);
+        entity.getLocation().set(100, 100);
+        entity.getVelocity().set(0, 0);
+
+    }
+
+    public static void teleportEntityFromSafety(ShipAPI entity, Vector2f targetLocation) {
+        entity.getLocation().set(targetLocation);
+        entity.getVelocity().set(targetVelocity);
+        entity.setPhased(false);
+    }
+
+    public static ShipAPI spawnEntity(String entityID, Vector2f spawnPosition) {
+        getLogger().info("Spawning Entity: " + entityID);
+        CombatFleetManagerAPI enemyFleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
+        ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
+        entity.getVelocity().set(targetVelocity);
+        entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
+        entity.makeLookDisabled();
+        return entity;
 
     }
 
