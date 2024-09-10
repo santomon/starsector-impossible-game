@@ -27,7 +27,6 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public final float mapSizeY;
     public final HashMap<Integer, String> objectLookUpTable;
     private final HashMap<String, List<ShipAPI>> availableEntitiesForSpawning;
-    private ShipAPI someGroundShip;
 
 
 
@@ -81,11 +80,6 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             // prob enough if we do it only when we spawn shit
             markObsoleteShipsForTeleportation(this.mapSizeX, this.mapSizeY, this.availableEntitiesForSpawning);
         }
-
-        if (this.someGroundShip != null) {
-            getLogger().info("Ground Ship Velocity: " + this.someGroundShip.getVelocity());
-        }
-
     }
 
 
@@ -142,7 +136,6 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
                 } else {
                     getLogger().info("Spawning Entity: " + entityID);
                     entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
-                    if (this.someGroundShip == null) this.someGroundShip = entity;
                     entity.getVelocity().set(targetVelocity);
                     entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
                 }

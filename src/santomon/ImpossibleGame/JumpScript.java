@@ -24,7 +24,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public static final float targetAngle = 0;  // looking to the right
     public static final float rotationSnapRange = rotationSpeed / 36f;
     public static final float timeMultiplier = 4f;
-    public static final float realGravity = 3000f;
+    public static final float realGravity = 2500f;
 
     public static final float initialVelocity = 600f;
 
@@ -132,10 +132,8 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
         float dV_y = - signum * amount * Math.abs(realGravity);
         float oldVelocity = this.jumper.getVelocity().y;
-        getLogger().info("oldVelocity: " + oldVelocity);
         float maybe_new_V_y = oldVelocity + dV_y;
         float new_V_y = maybe_new_V_y;
-        getLogger().info("newVy: " + new_V_y);
         jumper.getVelocity().setY(new_V_y);
     }
 
