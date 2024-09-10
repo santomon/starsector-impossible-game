@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.input.InputEventType;
 import com.fs.starfarer.api.mission.FleetSide;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -21,6 +20,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public float currentSecondStack = 0f;  // 1f === 1 sec; advanced amount is in the ~0.017 range usually
     public int currentLevelStage = 0;
+    private boolean[] previouslyCreated;
 
     public final int[][] levelData;
     public final float mapSizeX;
@@ -34,9 +34,9 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public static final float objectVelocityI = 600f;
     public static final float objectVelocity = 1000f;
     public static final float timeMultiplier = 2f;
-    public static final float tileSize = 128f;  // kite has  a collision radius of 64
+    public static final float tileSize = 120f;  // kite has  a collision radius of 64
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
-    public static final float spawnInterval = tileSize / objectVelocityI / timeMultiplier;
+    public static final float spawnInterval = tileSize / 2 / objectVelocityI / timeMultiplier;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
 
@@ -59,6 +59,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         }};
 
         this.spawnInitialRow();
+        previouslyCreated = new boolean[levelData[0].length];
+        previouslyCreated[previouslyCreated.length - 1] = true;
     }
 
 
@@ -73,7 +75,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         if (this.currentSecondStack >= spawnInterval) {
             this.currentSecondStack = 0;
             if (this.currentLevelStage >= this.levelData.length) return;  // we are finished with the level
-            spawnColumn(this.levelData[this.currentLevelStage]);
+            this.previouslyCreated = spawnColumn(this.levelData[this.currentLevelStage], this.previouslyCreated);
             this.currentLevelStage += 1;
 
             // prob enough if we do it only when we spawn shit
@@ -114,9 +116,11 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     }
 
-    public void spawnColumn(int[] column) {
+    public boolean[] spawnColumn(int[] column, boolean[] previouslyCreated) {
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI enemyFleetManagerAPI = combatEngineAPI.getFleetManager(FleetSide.ENEMY);
+
+        boolean[] spawnedShit = new boolean[column.length];
 
         int columnSize = column.length;
 
@@ -124,25 +128,30 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             int key = column[i];
             String entityID = objectLookUpTable.get(key);
             if (entityID != null) {
+
+                if (previouslyCreated[i]) continue;
+
                 Vector2f spawnPosition = calculateSpawnPosition(i, mapSizeX, mapSizeY);
                 List<ShipAPI> availableShips = availableEntitiesForSpawning.get(entityID);
 
+                ShipAPI entity;
                 if (!availableShips.isEmpty()) {
-                    ShipAPI entity = availableShips.remove(availableShips.size() - 1);
+                    entity = availableShips.remove(availableShips.size() - 1);
                     entity.getLocation().set(spawnPosition);
-                    entity.makeLookDisabled();
 
                 } else {
                     getLogger().info("Spawning Entity: " + entityID);
-                    ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
+                    entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
                     if (this.someGroundShip == null) this.someGroundShip = entity;
                     entity.getVelocity().set(targetVelocity);
                     entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
-                    entity.makeLookDisabled();
                 }
+                spawnedShit[i] = true;
+                entity.makeLookDisabled();
 
             }
         }
+        return spawnedShit;
     }
 
     private void overrideVelocities() {
