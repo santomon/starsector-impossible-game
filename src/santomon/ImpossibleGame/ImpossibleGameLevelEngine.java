@@ -9,10 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
@@ -20,13 +17,17 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public float currentSecondStack = 0f;  // 1f === 1 sec; advanced amount is in the ~0.017 range usually
     public int currentLevelStage = 0;
-    private boolean[] previouslyCreated;
 
     public final int[][] levelData;
+    public final int[] gravityData;
     public final float mapSizeX;
     public final float mapSizeY;
     public final HashMap<Integer, String> objectLookUpTable;
+
+    private boolean[] previouslyCreated;
     private final HashMap<String, List<ShipAPI>> availableEntitiesForSpawning;
+    private final List<JumpScript> jumpScripts = new ArrayList<JumpScript>();
+    private boolean gravityIsReversed = false;
 
 
 
@@ -41,13 +42,14 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
 
 
-    public ImpossibleGameLevelEngine(int[][] levelData, float mapSizeX, float mapSizeY, final HashMap<Integer, String> objectLookUpTable) {
+    public ImpossibleGameLevelEngine(int[][] levelData, int[] gravityData, float mapSizeX, float mapSizeY, final HashMap<Integer, String> objectLookUpTable) {
 
         // spawn the jumper; 3 tiles away from the middle
         this.levelData = levelData;
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
         this.objectLookUpTable = objectLookUpTable;
+        this.gravityData = gravityData;
 
         this.availableEntitiesForSpawning = new HashMap<String, List<ShipAPI>>() {{
             for (String entityID : objectLookUpTable.values()) {
@@ -62,6 +64,11 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         previouslyCreated[previouslyCreated.length - 1] = true;
     }
 
+    public List<JumpScript> getJumpScripts() {
+        return this.jumpScripts;
+    }
+
+
 
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
@@ -75,11 +82,25 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             this.currentSecondStack = 0;
             if (this.currentLevelStage >= this.levelData.length) return;  // we are finished with the level
             this.previouslyCreated = spawnColumn(this.levelData[this.currentLevelStage], this.previouslyCreated);
+            maybeFlipGravity();
             this.currentLevelStage += 1;
 
             // prob enough if we do it only when we spawn shit
             markObsoleteShipsForTeleportation(this.mapSizeX, this.mapSizeY, this.availableEntitiesForSpawning);
         }
+    }
+
+    private void maybeFlipGravity() {
+        for (int g : gravityData) {
+            if (g > this.currentLevelStage) return;
+            if (g == this.currentLevelStage) {
+                this.gravityIsReversed = !this.gravityIsReversed;
+                for (JumpScript jumpScript : jumpScripts) {
+                    jumpScript.setGravityIsReversed(!jumpScript.getGravityIsReversed());
+                }
+            }
+        }
+
     }
 
 

@@ -18,6 +18,7 @@ import java.util.Objects;
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public final int[][] levelData;
+    public final int[] gravityData;
     public final float mapSizeX;
     public final float mapSizeY;
     public final JumpSettings jumpSettings;
@@ -46,6 +47,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
         System.out.println("ImpossibleGameLevelPlugin constructor");
         this.levelData = loadLevelData(levelName);
+        this.gravityData = loadGravityData(levelName);
         this.mapSizeX = mapSizeX;
         this.mapSizeY = mapSizeY;
         this.jumpSettings = new JumpSettings(
@@ -90,8 +92,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             this.cleanUp();
         }
 
-
-
         // freeze playerShip
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
         playerShip.setControlsLocked(true);
@@ -117,7 +117,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public Boolean hasCalledFakeInit = false;
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
-        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.mapSizeX, this.mapSizeY, objectLookUpTable);
+        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.mapSizeX, this.mapSizeY, objectLookUpTable);
         engine.addPlugin(this.impossibleGameLevelEngine);
 
         this.killPlayerWhenAnyPlayerDamageIsTakenScript = new KillPlayerWhenAnyPlayerDamageIsTaken();
@@ -143,6 +143,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
        this.jumper.setShipAI(new DontMoveAI());
 
        this.jumpScript = new JumpScript(this.jumper, groundShipIDs, this.jumpSettings, this.keyBindings.jumpKeys);
+       this.impossibleGameLevelEngine.getJumpScripts().add(this.jumpScript);
        engine.addPlugin(this.jumpScript);
        if (this.impossibleGameLevelEngine != null) {
            this.impossibleGameLevelEngine.positionJumper(this.jumper);
@@ -170,6 +171,21 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             throw new RuntimeException("Failed to load level data", e);
         }
     }
+
+    public static int[] loadGravityData(String levelName){
+        try {
+            String gravityDataRaw = Global.getSettings().loadText("data/missions/"+levelName+"/gravity_data.txt");
+            String[] Q = gravityDataRaw.split("\n");
+            int[] data = new int[Q.length];
+            for (int i = 0; i < Q.length; i++) {
+                data[i] = Integer.parseInt(Q[i]);
+            }
+            return data;
+        } catch (Exception e ) {
+            throw new RuntimeException("Failed to load gravity data. make sure, it is exactly 1 integer per line and nothing else.", e);
+        }
+    }
+
     public static void showLevelData(int[][] levelData){
 
         for (int[] row : levelData) {
