@@ -17,7 +17,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     // a lot of the logic is put here to enable pausing maybe?
 
     public float currentSecondStack = 0f;  // 1f === 1 sec; advanced amount is in the ~0.017 range usually
-    public int currentLevelStage = 550;
+    public int currentLevelStage = 000;
 
     public final int[][] levelData;
     public final int[] gravityData;
