@@ -8,8 +8,6 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.lazywizard.lazylib.LazyLib;
-import org.lazywizard.lazylib.combat.CombatUtils;
 import org.lwjgl.util.vector.Vector2f;
 import lunalib.lunaSettings.LunaSettings;
 
@@ -42,6 +40,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public static final List<String> groundShipIDs = new ArrayList<String>() {{
         add(objectLookUpTable.get(1));
     }};
+    private MoveVerticalRelative moveRelative;
+    public Boolean hasCalledFakeInit = false;
 
 
     public ImpossibleGameLevelPlugin(String levelName) {
@@ -91,19 +91,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             this.cleanUp();
         }
 
-//        CombatUtils.centerViewport(new Vector2f(0, 0));
-        ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
-        getLogger().info(viewportAPI.getLLX() + " " + viewportAPI.getLLY());
-        viewportAPI.set(0f, 0f, 100f, 100f);
-
-
-        // freeze playerShip
-        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
-
-        playerShip.setControlsLocked(true);
-        playerShip.setPhased(true);
-        playerShip.getVelocity().set(new Vector2f(0, 0));
-        playerShip.getLocation().set(new Vector2f(0, 0));
 
         // freeze enemy flagship
         ShipAPI enemyFlagship = getEnemyFlagship();
@@ -117,10 +104,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     @Override
     public void init(CombatEngineAPI engine) {
-//        System.out.println("ImpossibleGameLevelPlugin init");
     }
 
-    public Boolean hasCalledFakeInit = false;
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
         this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, objectLookUpTable);
@@ -139,12 +124,21 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             enemyFlagship.getVelocity().set(0, 0);
             enemyFlagship.setPhased(true);
         }
+
+
+        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+        if (playerShip != null) {
+            playerShip.setControlsLocked(true);
+            playerShip.setPhased(true);
+            playerShip.getVelocity().set(new Vector2f(0, 0));
+            playerShip.getLocation().set(new Vector2f(0, 0));
+        }
+
     }
 
    public void createJumper() {
         CombatEngineAPI engine = Global.getCombatEngine();
        this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(0,0), 0);  // facing of 0 === looking to the right
-//       this.jumper.makeLookDisabled();
        this.jumper.getVelocity().set(0, 0);
        this.jumper.setShipAI(new DontMoveAI());
        this.jumper.addListener(new DamageWhenOutOfBounds(this.jumper));
@@ -155,6 +149,11 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
        if (this.impossibleGameLevelEngine != null) {
            this.impossibleGameLevelEngine.positionJumper(this.jumper);
        }
+
+       ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+       this.moveRelative = new MoveVerticalRelative(playerShip, this.jumper);
+       playerShip.addListener(moveRelative);
+
    }
 
 
