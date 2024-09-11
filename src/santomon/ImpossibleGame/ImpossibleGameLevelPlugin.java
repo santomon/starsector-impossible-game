@@ -31,7 +31,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public static final HashMap<Integer, String> objectLookUpTable = new HashMap<Integer, String>() {{
         put(0, null);
-        put(1, IGMisc.LunaLibKeys.IG_DEFENDER_VARIANT_ID);  // block
+        put(1, IGMisc.LunaLibKeys.IG_WARDEN_ID);  // block
         put(2, IGMisc.LunaLibKeys.IG_KITE_VARIANT_ID);  // spikes
         put(9, null);  // some other null markers
     }

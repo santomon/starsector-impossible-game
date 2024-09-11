@@ -113,7 +113,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
 
     public void positionJumper(ShipAPI jumper) {
-        Vector2f newPosition = new Vector2f(- tileSize * 3,0);
+        Vector2f newPosition = new Vector2f(- tileSize * 3,3 * tileSize);
         jumper.getLocation().set(newPosition);
     }
 
