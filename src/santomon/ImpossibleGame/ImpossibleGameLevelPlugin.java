@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -90,10 +91,15 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             this.cleanUp();
         }
 
-        CombatUtils.centerViewport(new Vector2f(0, 0));
+//        CombatUtils.centerViewport(new Vector2f(0, 0));
+        ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
+        getLogger().info(viewportAPI.getLLX() + " " + viewportAPI.getLLY());
+        viewportAPI.set(0f, 0f, 100f, 100f);
+
 
         // freeze playerShip
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+
         playerShip.setControlsLocked(true);
         playerShip.setPhased(true);
         playerShip.getVelocity().set(new Vector2f(0, 0));
