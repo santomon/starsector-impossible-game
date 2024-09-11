@@ -7,6 +7,8 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.lazywizard.lazylib.LazyLib;
+import org.lazywizard.lazylib.combat.CombatUtils;
 import org.lwjgl.util.vector.Vector2f;
 import lunalib.lunaSettings.LunaSettings;
 
@@ -87,6 +89,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         if (this.quickRestartPressed(events)) {
             this.cleanUp();
         }
+
+        CombatUtils.centerViewport(new Vector2f(0, 0));
 
         // freeze playerShip
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();

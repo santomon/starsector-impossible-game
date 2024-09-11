@@ -165,14 +165,14 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         return new Vector2f(X, Y);
     }
 
-    public static void despawnObsoleteShips(float mapSizeX, float mapSizeY) {
+    public static void despawnObsoleteShips() {
         // not sure if this is even necessary, as the engine seems to despawn out of  bounds ships by itself or sth
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI fleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
 
         for (ShipAPI ship : combatEngineAPI.getShips()) {
             FleetMemberAPI fleetMemberAPI = ship.getFleetMember();
-            if (ship.getOwner() == 1 && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship, mapSizeX, mapSizeY )
+            if (ship.getOwner() == 1 && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship)
             ) {
                 combatEngineAPI.removeEntity(ship);
             }
