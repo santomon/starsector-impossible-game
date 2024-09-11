@@ -118,7 +118,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     }
 
     public void fakeInit(CombatEngineAPI engine) {
-        System.out.println("ImpossibleGameLevelPlugin fakeInit");
         this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.colorData, objectLookUpTable);
         Global.getSoundPlayer().playCustomMusic(1, 1, "chaoz_fantasy");
         engine.addPlugin(this.impossibleGameLevelEngine);
