@@ -141,6 +141,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 //       this.jumper.makeLookDisabled();
        this.jumper.getVelocity().set(0, 0);
        this.jumper.setShipAI(new DontMoveAI());
+       this.jumper.addListener(new DamageWhenOutOfBounds(this.jumper));
 
        this.jumpScript = new JumpScript(this.jumper, groundShipIDs, this.jumpSettings, this.keyBindings.jumpKeys);
        this.impossibleGameLevelEngine.getJumpScripts().add(this.jumpScript);
