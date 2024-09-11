@@ -25,7 +25,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public static final float targetAngle = 0;  // looking to the right
     public static final float rotationSnapRange = rotationSpeed / 36f;
     public static final float timeMultiplier = 4f;
-    public static final float realGravity = 3500f;
+    public static final float realGravity = 3300f;
 
     public static final float initialVelocity = 600f;
 

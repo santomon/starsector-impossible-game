@@ -104,12 +104,13 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
      }
 
     private void maybeStopMusic() {
-        if (Global.getCombatEngine().getPlayerShip() == null) {
-            Global.getSoundPlayer().pauseCustomMusic();
-        }
-        if (!Global.getCombatEngine().getPlayerShip().isAlive()) {
-            Global.getSoundPlayer().pauseCustomMusic();
-        }
+//        if (Global.getCombatEngine().getPlayerShip() == null) {
+//            Global.getSoundPlayer().pauseCustomMusic();
+//            return;
+//        }
+//        if (!Global.getCombatEngine().getPlayerShip().isAlive()) {
+//            Global.getSoundPlayer().pauseCustomMusic();
+//        }
     }
 
     @Override
