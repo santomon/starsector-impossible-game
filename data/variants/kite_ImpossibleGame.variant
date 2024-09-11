@@ -3,7 +3,7 @@
     "fluxCapacitors": 7,
     "fluxVents": 6,
     "goalVariant": true,
-    "hullId": "kite",
+    "hullId": "kite_hegemony",
     "hullMods": ["missleracks"],
     "permaMods": ["missleracks"],
     "sMods": [],
