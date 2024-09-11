@@ -26,17 +26,19 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     private boolean[] previouslyCreated;
     private final HashMap<String, List<ShipAPI>> availableEntitiesForSpawning;
-    private final List<JumpScript> jumpScripts = new ArrayList<JumpScript>();
+    private final List<JumpScript> jumpScripts = new ArrayList<>();
     private boolean gravityIsReversed = false;
+    private ShipAPI spawnMarker;
 
 
+    // i think the target speed is around 15 tiles per second.
+    // with object velocity of 600f and tilesize of 120f that puts us at timemult of 3;
+    public static final float timeMultiplier = 2.5f;
 
-    public static final float objectVelocityI = 600f;
-    public static final float objectVelocity = 1000f;
-    public static final float timeMultiplier = 2f;
+    public static final float objectVelocity = 600f;
     public static final float tileSize = 120f;  // kite has  a collision radius of 64
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
-    public static final float spawnInterval = tileSize / 2 / objectVelocityI / timeMultiplier;
+    public static final float spawnInterval = tileSize / 2f / objectVelocity / timeMultiplier;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
 
@@ -79,14 +81,14 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
         this.currentSecondStack += amount;
         if (this.currentSecondStack >= spawnInterval) {
-            this.currentSecondStack = 0;
+            this.currentSecondStack = currentSecondStack - spawnInterval;
             if (this.currentLevelStage >= this.levelData.length) return;  // we are finished with the level
             this.previouslyCreated = spawnColumn(this.levelData[this.currentLevelStage], this.previouslyCreated);
             maybeFlipGravity();
             this.currentLevelStage += 1;
 
             // prob enough if we do it only when we spawn shit
-            markObsoleteShipsForTeleportation(this.mapSizeX, this.mapSizeY, this.availableEntitiesForSpawning);
+            markObsoleteShipsForTeleportation();
         }
     }
 
@@ -118,7 +120,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
         int i = this.levelData[0].length - 1;
 
-        Vector2f lowestPointSpawnPosition = calculateSpawnPosition(i, this.mapSizeX, this.mapSizeY);
+        Vector2f lowestPointSpawnPosition = calculateSpawnPosition(i);
         Vector2f currentSpawnPosition = new Vector2f().set(lowestPointSpawnPosition);
 
         while (currentSpawnPosition.x >= - mapSizeX / 2) {
@@ -143,7 +145,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
                 if (previouslyCreated[i]) continue;
 
-                Vector2f spawnPosition = calculateSpawnPosition(i, mapSizeX, mapSizeY);
+                Vector2f spawnPosition = calculateSpawnPosition(i);
                 List<ShipAPI> availableShips = availableEntitiesForSpawning.get(entityID);
 
                 ShipAPI entity;
@@ -160,9 +162,10 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     }
 
 
-    public static Vector2f calculateSpawnPosition(int i, float mapSizeX, float mapSizeY) {
+    public Vector2f calculateSpawnPosition(int i) {
         float Y = mapSizeY / 2f - topPadding - i * tileSize;
-        float X = mapSizeX / 2f - rightPadding;
+        float X;
+        X = mapSizeX / 2f - rightPadding;
         return new Vector2f(X, Y);
     }
 
@@ -181,7 +184,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     }
 
-    public static void markObsoleteShipsForTeleportation(float mapSizeX, float mapSizeY, HashMap<String, List<ShipAPI>> availableShips) {
+    public void markObsoleteShipsForTeleportation() {
         // not sure if this is even necessary, as the engine seems to despawn out of  bounds ships by itself or sth
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI fleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
@@ -191,9 +194,9 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             if (ship.getOwner() == 1 && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship, mapSizeX, mapSizeY )
             ) {
                 String shipVariantID = ship.getVariant().getHullVariantId();
-                if (!availableShips.containsKey(shipVariantID)) continue;
-                if (availableShips.get(shipVariantID).contains(ship)) continue;
-                availableShips.get(shipVariantID).add(ship);
+                if (!this.availableEntitiesForSpawning.containsKey(shipVariantID)) continue;
+                if (this.availableEntitiesForSpawning.get(shipVariantID).contains(ship)) continue;
+                this.availableEntitiesForSpawning.get(shipVariantID).add(ship);
                 teleportEntityToSafety(ship);
             }
         }
@@ -216,6 +219,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         getLogger().info("Spawning Entity: " + entityID);
         CombatFleetManagerAPI enemyFleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
         ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         entity.getVelocity().set(targetVelocity);
         entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
         entity.makeLookDisabled();

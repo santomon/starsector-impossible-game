@@ -198,9 +198,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public boolean getJumpKeyPressed(List<InputEventAPI> events) {
         boolean result = false;
 
-        for (InputEventAPI event : events) {
-            event.logEvent();
-        }
 
         for (InputEventAPI event : events) {
             if ((event.getEventType() == InputEventType.MOUSE_DOWN && event.getEventValue() == 0) || isHoldingMouse) {
