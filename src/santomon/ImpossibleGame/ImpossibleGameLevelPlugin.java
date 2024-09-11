@@ -19,8 +19,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public final int[][] levelData;
     public final int[] gravityData;
-    public final float mapSizeX;
-    public final float mapSizeY;
     public final JumpSettings jumpSettings;
     public final KeyBindings keyBindings;
     public final String jumperVariantID;
@@ -43,13 +41,11 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     }};
 
 
-    public ImpossibleGameLevelPlugin(String levelName, float mapSizeX, float mapSizeY) {
+    public ImpossibleGameLevelPlugin(String levelName) {
 
         System.out.println("ImpossibleGameLevelPlugin constructor");
         this.levelData = loadLevelData(levelName);
         this.gravityData = loadGravityData(levelName);
-        this.mapSizeX = mapSizeX;
-        this.mapSizeY = mapSizeY;
         this.jumpSettings = new JumpSettings(
                 LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.GRAVITY_FORCE_ID),
                 LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.JUMP_FORCE_ID),
@@ -117,7 +113,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public Boolean hasCalledFakeInit = false;
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
-        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.mapSizeX, this.mapSizeY, objectLookUpTable);
+        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, objectLookUpTable);
         engine.addPlugin(this.impossibleGameLevelEngine);
 
         this.killPlayerWhenAnyPlayerDamageIsTakenScript = new KillPlayerWhenAnyPlayerDamageIsTaken();
