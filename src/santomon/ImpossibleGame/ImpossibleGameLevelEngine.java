@@ -7,6 +7,7 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import java.awt.Color;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.*;
@@ -20,6 +21,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public final int[][] levelData;
     public final int[] gravityData;
+    public final HashMap<Integer, Color> colorData;
     public final HashMap<Integer, String> objectLookUpTable;
 
     private boolean[] previouslyCreated;
@@ -42,12 +44,13 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
 
 
-    public ImpossibleGameLevelEngine(int[][] levelData, int[] gravityData, final HashMap<Integer, String> objectLookUpTable) {
+    public ImpossibleGameLevelEngine(int[][] levelData, int[] gravityData, HashMap<Integer, Color> colorData, final HashMap<Integer, String> objectLookUpTable) {
 
         // spawn the jumper; 3 tiles away from the middle
         this.levelData = levelData;
         this.objectLookUpTable = objectLookUpTable;
         this.gravityData = gravityData;
+        this.colorData = colorData;
 
         this.availableEntitiesForSpawning = new HashMap<String, List<ShipAPI>>() {{
             for (String entityID : objectLookUpTable.values()) {
@@ -81,11 +84,18 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             if (this.currentLevelStage >= this.levelData.length) return;  // we are finished with the level
             this.previouslyCreated = spawnColumn(this.levelData[this.currentLevelStage], this.previouslyCreated);
             maybeFlipGravity();
+            maybeChangeBackgroundColor();
             this.currentLevelStage += 1;
 
             // prob enough if we do it only when we spawn shit
             markObsoleteShipsForTeleportation();
         }
+    }
+
+    private void maybeChangeBackgroundColor() {
+        if (this.colorData.containsKey(this.currentLevelStage))
+            Global.getCombatEngine().setBackgroundColor(colorData.get(this.currentLevelStage));
+
     }
 
     private void maybeFlipGravity() {

@@ -4,22 +4,21 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import java.awt.Color;
 import org.lwjgl.util.vector.Vector2f;
 import lunalib.lunaSettings.LunaSettings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public final int[][] levelData;
     public final int[] gravityData;
+    public final HashMap<Integer, Color> colorData;
     public final JumpSettings jumpSettings;
     public final KeyBindings keyBindings;
     public final String jumperVariantID;
@@ -49,6 +48,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         System.out.println("ImpossibleGameLevelPlugin constructor");
         this.levelData = loadLevelData(levelName);
         this.gravityData = loadGravityData(levelName);
+        this.colorData = loadColorData(levelName);
         this.jumpSettings = new JumpSettings(
                 LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.GRAVITY_FORCE_ID),
                 LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.JUMP_FORCE_ID),
@@ -99,16 +99,18 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             enemyFlagship.getVelocity().set(new Vector2f(0, 0));
             enemyFlagship.getLocation().set(new Vector2f(-10, 0));
 
+
         }
      }
 
     @Override
     public void init(CombatEngineAPI engine) {
+//        engine.setBackgroundColor(new Color(255, 0, 0));
     }
 
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
-        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, objectLookUpTable);
+        this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.colorData, objectLookUpTable);
         engine.addPlugin(this.impossibleGameLevelEngine);
 
         this.killPlayerWhenAnyPlayerDamageIsTakenScript = new KillPlayerWhenAnyPlayerDamageIsTaken();
@@ -188,7 +190,29 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             }
             return data;
         } catch (Exception e ) {
-            throw new RuntimeException("Failed to load gravity data. make sure, it is exactly 1 integer per line and nothing else.", e);
+            getLogger().error("Failed to load gravity data. make sure, it is exactly 1 integer per line and nothing else.", e);
+            return new int[0];
+        }
+    }
+
+    public static HashMap<Integer, Color> loadColorData(String levelName){
+        try {
+            HashMap<Integer, Color> data = new HashMap<>();
+            String colorDataRaw = Global.getSettings().loadText("data/missions/"+levelName+"/color_data.txt");
+            String[] Q = colorDataRaw.split("\n");
+            for (int i = 0; i < Q.length; i++) {
+                int[] tmp = new int[4];
+                String[] splits = Q[i].split(",");
+                for (int j = 0; j < tmp.length; j++) {
+                    tmp[j] = Integer.parseInt(splits[j]);
+                }
+                Color color = new Color(tmp[1], tmp[2], tmp[3]);
+                data.put(tmp[0], color);
+            }
+            return data;
+        } catch (Exception e) {
+            getLogger().error("Failed to load color data.", e);
+            return new HashMap<>();
         }
     }
 

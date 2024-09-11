@@ -43,6 +43,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Cain", true);
 		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Enemy", true);
 		CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+		api.setBackgroundSpriteName("defaultHyperBackground");
+
 
 
 		// Set up the map.
