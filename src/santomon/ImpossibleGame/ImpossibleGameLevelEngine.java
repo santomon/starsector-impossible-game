@@ -130,8 +130,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         Vector2f currentSpawnPosition = new Vector2f().set(lowestPointSpawnPosition);
 
         while (currentSpawnPosition.x >= - combatEngineAPI.getMapWidth() / 2) {
-            String entityID = objectLookUpTable.get(1);
-            ShipAPI groundShip = spawnEntity(entityID, currentSpawnPosition);
+            ShipAPI groundShip = spawnEntity(1, currentSpawnPosition);
             currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
         }
 
@@ -159,7 +158,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
                     entity = availableShips.remove(availableShips.size() - 1);
                     teleportEntityFromSafety(entity, spawnPosition);
                 } else {
-                    entity = spawnEntity(entityID, spawnPosition);
+                    entity = spawnEntity(key, spawnPosition);
                 }
                 spawnedShit[i] = true;
             }
@@ -208,23 +207,29 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         }
     }
 
-    public static void teleportEntityToSafety(ShipAPI entity) {
+    public void teleportEntityToSafety(ShipAPI entity) {
         entity.setPhased(true);
         entity.getLocation().set(100, 100);
         entity.getVelocity().set(0, 0);
 
     }
 
-    public static void teleportEntityFromSafety(ShipAPI entity, Vector2f targetLocation) {
+    public void teleportEntityFromSafety(ShipAPI entity, Vector2f targetLocation) {
         entity.getLocation().set(targetLocation);
         entity.getVelocity().set(targetVelocity);
+
+        int signum = !this.gravityIsReversed ? 1 : -1;
+        entity.setFacing(signum * 90f);
+
         entity.setPhased(false);
     }
 
-    public static ShipAPI spawnEntity(String entityID, Vector2f spawnPosition) {
+    public ShipAPI spawnEntity(int key, Vector2f spawnPosition) {
+        String entityID = this.objectLookUpTable.get(key);
         getLogger().info("Spawning Entity: " + entityID);
         CombatFleetManagerAPI enemyFleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
-        ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, 90f);
+        int signum = !this.gravityIsReversed ? 1 : -1;
+        ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, signum * 90f);
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         entity.getVelocity().set(targetVelocity);
         entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
