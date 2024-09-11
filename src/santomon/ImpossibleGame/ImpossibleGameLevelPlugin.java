@@ -91,6 +91,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             this.cleanUp();
         }
 
+        maybeStopMusic();
+
 
         // freeze enemy flagship
         ShipAPI enemyFlagship = getEnemyFlagship();
@@ -98,10 +100,17 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             enemyFlagship.setPhased(true);
             enemyFlagship.getVelocity().set(new Vector2f(0, 0));
             enemyFlagship.getLocation().set(new Vector2f(-10, 0));
-
-
         }
      }
+
+    private void maybeStopMusic() {
+        if (Global.getCombatEngine().getPlayerShip() == null) {
+            Global.getSoundPlayer().pauseCustomMusic();
+        }
+        if (!Global.getCombatEngine().getPlayerShip().isAlive()) {
+            Global.getSoundPlayer().pauseCustomMusic();
+        }
+    }
 
     @Override
     public void init(CombatEngineAPI engine) {
@@ -111,6 +120,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public void fakeInit(CombatEngineAPI engine) {
         System.out.println("ImpossibleGameLevelPlugin fakeInit");
         this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.colorData, objectLookUpTable);
+        Global.getSoundPlayer().playCustomMusic(1, 1, "chaoz_fantasy");
         engine.addPlugin(this.impossibleGameLevelEngine);
 
         this.killPlayerWhenAnyPlayerDamageIsTakenScript = new KillPlayerWhenAnyPlayerDamageIsTaken();

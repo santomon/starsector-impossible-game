@@ -1,0 +1,7 @@
+{
+  "music": {
+    "chaoz_fantasy": [
+      {"file": "chaoz_fantasy.ogg", "source":  "sounds/", "volume":  1.0}
+    ]
+  }
+}
