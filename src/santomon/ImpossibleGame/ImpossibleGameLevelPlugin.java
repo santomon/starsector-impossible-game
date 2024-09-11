@@ -33,6 +33,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         put(0, null);
         put(1, IGMisc.LunaLibKeys.IG_WARDEN_ID);  // block
         put(2, IGMisc.LunaLibKeys.IG_KITE_VARIANT_ID);  // spikes
+        put(3, "radiant_Standard");  // victory
         put(9, null);  // some other null markers
     }
     };

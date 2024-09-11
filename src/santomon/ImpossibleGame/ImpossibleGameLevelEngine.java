@@ -14,10 +14,12 @@ import java.util.*;
 
 
 public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
+    public static final String IMPOSSIBLE_VICTORY_FLAG = "impossible_victory_flag";
     // a lot of the logic is put here to enable pausing maybe?
 
     public float currentSecondStack = 0f;  // 1f === 1 sec; advanced amount is in the ~0.017 range usually
-    public int currentLevelStage = 000;
+    public int currentLevelStage = 0;
+
 
     public final int[][] levelData;
     public final int[] gravityData;
@@ -29,6 +31,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     private final List<JumpScript> jumpScripts = new ArrayList<>();
     private boolean gravityIsReversed = false;
     private ShipAPI spawnMarker;
+    private ShipAPI victoryMarker;
 
 
     // i think the target speed is around 15 tiles per second.
@@ -37,11 +40,12 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public static final float objectVelocity = 600f;
     public static final float tileSize = 120f;  // kite has  a collision radius of 64
+    public static final  Vector2f jumperPosition = new Vector2f(- tileSize * 3,3 * tileSize);
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
     public static final float spawnInterval = tileSize / 2f / objectVelocity / timeMultiplier;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
-
+    private boolean hasALreadyInitiatedVictoryRoutine = false;
 
 
     public ImpossibleGameLevelEngine(int[][] levelData, int[] gravityData, HashMap<Integer, Color> colorData, final HashMap<Integer, String> objectLookUpTable) {
@@ -89,7 +93,17 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
             // prob enough if we do it only when we spawn shit
             markObsoleteShipsForTeleportation();
+            if (checkVictory()) {
+                maybeInitiateVictoryRoutine();
+            }
         }
+    }
+
+    private void maybeInitiateVictoryRoutine() {
+        if (hasALreadyInitiatedVictoryRoutine) return;
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        combatEngineAPI.addPlugin(new VictoryCelebration(3f, 10f));
+        hasALreadyInitiatedVictoryRoutine = true;
     }
 
     private void maybeChangeBackgroundColor() {
@@ -113,8 +127,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
 
     public void positionJumper(ShipAPI jumper) {
-        Vector2f newPosition = new Vector2f(- tileSize * 3,3 * tileSize);
-        jumper.getLocation().set(newPosition);
+        jumper.getLocation().set(jumperPosition);
     }
 
 
@@ -164,6 +177,11 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             }
         }
         return spawnedShit;
+    }
+
+    private boolean checkVictory() {
+        if (this.victoryMarker == null) return false;
+        return victoryMarker.getLocation().x < jumperPosition.x;
     }
 
 
@@ -230,6 +248,11 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         CombatFleetManagerAPI enemyFleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
         int signum = !this.gravityIsReversed ? 1 : -1;
         ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, signum * 90f);
+        if (key==3) {
+            entity.addTag(IMPOSSIBLE_VICTORY_FLAG);
+            this.victoryMarker = entity;
+            this.victoryMarker.setPhased(true);
+        }
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         entity.getVelocity().set(targetVelocity);
         entity.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
