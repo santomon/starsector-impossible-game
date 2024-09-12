@@ -56,8 +56,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         // spawn the jumper; 3 tiles away from the middle
-//        this.safeSpot = new Vector2f(combatEngineAPI.getMapWidth() / 2 - 500, combatEngineAPI.getMapHeight() / 2 - 500);
-        this.safeSpot = new Vector2f(0, 0);
+        this.safeSpot = new Vector2f(combatEngineAPI.getMapWidth() / 2 - 500, combatEngineAPI.getMapHeight() / 2 - 500);
+//        this.safeSpot = new Vector2f(0, 0);
         this.levelData = levelData;
         this.objectLookUpTable = objectLookUpTable;
         this.gravityData = gravityData;
