@@ -21,7 +21,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		api.setFleetTagline(FleetSide.ENEMY, "Spikey Bois");
 
 		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd PlayerShip", true);
-		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "XDD EnemyFlagShip", true);
+		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "FUMO EnemyFlagShip", true);
 
 		float width = 4000f;
 		float height = 4000f;
