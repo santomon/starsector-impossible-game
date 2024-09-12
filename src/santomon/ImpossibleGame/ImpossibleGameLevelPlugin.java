@@ -40,7 +40,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public static final List<String> groundShipIDs = new ArrayList<String>() {{
         add(objectLookUpTable.get(1));
     }};
-    private MoveVerticalRelative moveRelative;
+    private CameraControl cameraControl;
     public Boolean hasCalledFakeInit = false;
 
 
@@ -163,9 +163,9 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
            this.impossibleGameLevelEngine.positionJumper(this.jumper);
        }
 
-       ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
-       this.moveRelative = new MoveVerticalRelative(playerShip, this.jumper);
-       playerShip.addListener(moveRelative);
+       this.cameraControl = new CameraControl(this.jumper);
+       Global.getCombatEngine().addPlugin(this.cameraControl);
+       cameraControl.setIsActive(true);
 
    }
 

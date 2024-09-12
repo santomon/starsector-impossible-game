@@ -52,12 +52,10 @@ public class VictoryCelebration extends BaseEveryFrameCombatPlugin {
     }
 
     private void triggerExplosion() {
-        System.out.println("EKUSUPLOOOOSION");
+
         ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
         float randomX = (float) Math.random();
         float randomY = (float) Math.random();
-        System.out.println("center " + viewportAPI.getCenter());
-        System.out.println("LLX " + viewportAPI.getLLX());
         float LRX = (viewportAPI.getCenter().x - viewportAPI.getLLX()) * 2 + viewportAPI.getLLX();
         float ULY = (viewportAPI.getCenter().y - viewportAPI.getLLY()) * 2 + viewportAPI.getLLY();
 
