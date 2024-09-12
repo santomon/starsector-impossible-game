@@ -42,7 +42,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public static final float tileSize = 120f;  // kite has  a collision radius of 64
     public static final  Vector2f jumperPosition = new Vector2f(- tileSize * 3,3 * tileSize);
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
-    public static final float spawnInterval = tileSize / 2f / objectVelocity / timeMultiplier;
+    public static final float spawnPrecision = 2f;
+    public static final float spawnInterval = tileSize / spawnPrecision / objectVelocity / timeMultiplier;
     public static final float topPadding = 100f;
     public static final float rightPadding = 100f;
     private boolean hasALreadyInitiatedVictoryRoutine = false;
@@ -190,7 +191,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             this.spawnMarker.getVelocity().set(targetVelocity);
             this.spawnMarker.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
         } else {
-            this.spawnMarker.getLocation().setX(this.spawnMarker.getLocation().x + tileSize / 2);
+            this.spawnMarker.getLocation().setX(this.spawnMarker.getLocation().x + tileSize / spawnPrecision);
         }
 
     }
