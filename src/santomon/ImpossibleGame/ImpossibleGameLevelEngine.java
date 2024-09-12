@@ -103,7 +103,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     private void maybeInitiateVictoryRoutine() {
         if (hasALreadyInitiatedVictoryRoutine) return;
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-        combatEngineAPI.addPlugin(new VictoryCelebration(3f, 10f));
+        combatEngineAPI.addPlugin(new VictoryCelebration(3f, 5f));
         hasALreadyInitiatedVictoryRoutine = true;
     }
 

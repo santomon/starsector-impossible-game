@@ -45,6 +45,7 @@ public class VictoryCelebration extends BaseEveryFrameCombatPlugin {
         }
         if (maxDuration < totalElapsedTime) {
             CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+            combatEngineAPI.addFloatingText(new Vector2f(0, 0), "VICTORY!!!", 100, new Color(255, 255,255), null, 0, 10 );
             combatEngineAPI.endCombat(2f, FleetSide.PLAYER);
             combatEngineAPI.removePlugin(this);
         }
