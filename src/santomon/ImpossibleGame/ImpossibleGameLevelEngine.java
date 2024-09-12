@@ -39,7 +39,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public static final float timeMultiplier = 2.5f;
 
     public static final float objectVelocity = 600f;
-    public static final float tileSize = 120f;  // kite has  a collision radius of 64
+    public static final float tileSize = 120f;  // kite has  a collision radius of 64  // prob should make this inferable, based on collision radius of ground ship
     public static final  Vector2f jumperPosition = new Vector2f(- tileSize * 3,3 * tileSize);
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
     public static final float spawnPrecision = 2f;
@@ -214,12 +214,10 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public void teleportObsoleteShipsToSafety() {
         // not sure if this is even necessary, as the engine seems to despawn out of  bounds ships by itself or sth
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-        CombatFleetManagerAPI fleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
 
         for (ShipAPI ship : combatEngineAPI.getShips()) {
             FleetMemberAPI fleetMemberAPI = ship.getFleetMember();
-            if (ship.getOwner() == 1 && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship)
-            ) {
+            if (shipIsRegistered(ship) && !fleetMemberAPI.isFlagship() && getIsShipOutOfBounds(ship)) {
                 String shipVariantID = ship.getVariant().getHullVariantId();
                 if (!this.availableEntitiesForSpawning.containsKey(shipVariantID)) continue;
                 if (this.availableEntitiesForSpawning.get(shipVariantID).contains(ship)) continue;
@@ -249,7 +247,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public ShipAPI spawnEntity(int key, Vector2f spawnPosition) {
         String entityID = this.objectLookUpTable.get(key);
         getLogger().info("Spawning Entity: " + entityID);
-        CombatFleetManagerAPI enemyFleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
+        int owner = key == 1 ? 0 : 1;
+        CombatFleetManagerAPI enemyFleetManagerAPI = Global.getCombatEngine().getFleetManager(owner);
         int signum = !this.gravityIsReversed ? 1 : -1;
         ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, signum * 90f);
         if (key==3) {
@@ -263,6 +262,13 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         entity.makeLookDisabled();
         return entity;
 
+    }
+
+    private boolean shipIsRegistered(ShipAPI ship) {
+        for (String entityID : this.objectLookUpTable.values()) {
+            if (Objects.equals(entityID, ship.getVariant().getHullVariantId())) return true;
+        }
+        return false;
     }
 
 
