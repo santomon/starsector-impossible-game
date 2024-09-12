@@ -120,8 +120,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
             direction.set(direction.x * initialVelocity, direction.y * initialVelocity);
 
             this.jumper.getVelocity().set(this.jumper.getVelocity().x + direction.x, this.jumper.getVelocity().y + direction.y);
-            getLogger().info("initiating jump with initial Velocity: " + initialVelocity);
-            getLogger().info("actual velocity: " + this.jumper.getVelocity());
         }
 
     }
@@ -133,8 +131,7 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
         float dV_y = - signum * amount * Math.abs(realGravity);
         float oldVelocity = this.jumper.getVelocity().y;
-        float maybe_new_V_y = oldVelocity + dV_y;
-        float new_V_y = maybe_new_V_y;
+        float new_V_y = oldVelocity + dV_y;
         jumper.getVelocity().setY(new_V_y);
     }
 
