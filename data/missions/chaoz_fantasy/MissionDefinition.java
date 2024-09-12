@@ -37,7 +37,6 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Cain", true);
 		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Enemy", true);
 		CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-		api.setBackgroundSpriteName("defaultHyperBackground");
 
 
 
@@ -46,7 +45,7 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		float height = 4000f;
 		api.initMap(-width/2f, width/2f, -height/2f, height/2f);
 
-		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin("xddmission");
+		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin("chaoz_fantasy");
 		api.addPlugin(plugin);
 	}
 
