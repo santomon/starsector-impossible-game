@@ -155,6 +155,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         boolean[] spawnedShit = new boolean[column.length];
 
         int columnSize = column.length;
+        spawnOrRelocateSpawnMarker();
 
         for (int i = 0; i < columnSize; i++) {
             int key = column[i];
@@ -179,6 +180,21 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         return spawnedShit;
     }
 
+    private void spawnOrRelocateSpawnMarker() {
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        Vector2f spawnPosition = calculateSpawnPosition(10);
+        if (this.spawnMarker == null) {
+            this.spawnMarker = combatEngineAPI.getFleetManager(1).spawnShipOrWing("defender_PD", spawnPosition, 90f);
+            this.spawnMarker.setPhased(true);
+            this.spawnMarker.makeLookDisabled();
+            this.spawnMarker.getVelocity().set(targetVelocity);
+            this.spawnMarker.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
+        } else {
+            this.spawnMarker.getLocation().setX(this.spawnMarker.getLocation().x + tileSize / 2);
+        }
+
+    }
+
     private boolean checkVictory() {
         if (this.victoryMarker == null) return false;
         return victoryMarker.getLocation().x < jumperPosition.x;
@@ -188,7 +204,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public Vector2f calculateSpawnPosition(int i) {
         float Y = Global.getCombatEngine().getMapHeight() / 2f - topPadding - i * tileSize;
         float X;
-        X = Global.getCombatEngine().getMapWidth() / 2f - rightPadding;
+        if (this.spawnMarker == null) X = Global.getCombatEngine().getMapWidth() / 2f - rightPadding;
+        else X = this.spawnMarker.getLocation().x;
         return new Vector2f(X, Y);
     }
 
