@@ -13,7 +13,8 @@ import java.util.List;
 public class CameraControl extends BaseEveryFrameCombatPlugin {
 
     static final float horizontalOffset = 600f;
-    static final float verticalTolerance = 200f;
+    static final float verticalTolerance = 250f;
+    static final float repositionTolerance = 200f;
     static final float cameraSpeed = 1000f;
 
 
@@ -86,7 +87,7 @@ public class CameraControl extends BaseEveryFrameCombatPlugin {
     private void maybeMove(float timePassed) {
         if (!this.shouldMove) return;
 
-        if (Math.abs(this.center.y - this.target.getLocation().y) < verticalTolerance) {
+        if (Math.abs(this.center.y - this.target.getLocation().y) < repositionTolerance) {
             this.shouldMove = false;
             return;
         }

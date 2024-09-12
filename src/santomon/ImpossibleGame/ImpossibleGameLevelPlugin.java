@@ -18,6 +18,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public final int[][] levelData;
     public final int[] gravityData;
+    private Vector2f safeSpot;
     public final HashMap<Integer, Color> colorData;
     public final JumpSettings jumpSettings;
     public final KeyBindings keyBindings;
@@ -95,13 +96,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         maybeStopMusic();
 
 
-        // freeze enemy flagship
-        ShipAPI enemyFlagship = getEnemyFlagship();
-        if (enemyFlagship != null) {
-            enemyFlagship.setPhased(true);
-            enemyFlagship.getVelocity().set(new Vector2f(0, 0));
-            enemyFlagship.getLocation().set(new Vector2f(-10, 0));
-        }
+        lockFlagShips();
      }
 
     private void maybeStopMusic() {
@@ -121,6 +116,11 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public void fakeInit(CombatEngineAPI engine) {
         this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.colorData, objectLookUpTable);
+        this.safeSpot = new Vector2f(
+                engine.getMapWidth() / 2 - 500,
+                engine.getMapHeight() / 2 - 500
+        );
+
         Global.getSoundPlayer().playCustomMusic(1, 1, "chaoz_fantasy");
         engine.addPlugin(this.impossibleGameLevelEngine);
 
@@ -129,10 +129,13 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
         this.createJumper();
 
-        // isolating enemy flagship
+
+    }
+
+    private void lockFlagShips() {
         ShipAPI enemyFlagship = getEnemyFlagship();
         if (enemyFlagship != null) {
-            enemyFlagship.getLocation().set(new Vector2f(-10,  - 10));
+            enemyFlagship.getLocation().set(this.safeSpot);
             enemyFlagship.setShipAI(new DontMoveAI());
             enemyFlagship.getVelocity().set(0, 0);
             enemyFlagship.setPhased(true);
@@ -141,17 +144,16 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
         if (playerShip != null) {
-            playerShip.setControlsLocked(true);
             playerShip.setPhased(true);
             playerShip.getVelocity().set(new Vector2f(0, 0));
-            playerShip.getLocation().set(new Vector2f(0, 0));
+            playerShip.getLocation().set(this.safeSpot);
         }
 
     }
 
    public void createJumper() {
-        CombatEngineAPI engine = Global.getCombatEngine();
-       this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(0,0), 0);  // facing of 0 === looking to the right
+       CombatEngineAPI engine = Global.getCombatEngine();
+       this.jumper = engine.getFleetManager(0).spawnShipOrWing(jumperVariantID, new Vector2f(0, 0), 0);  // facing of 0 === looking to the right
        this.jumper.getVelocity().set(0, 0);
        this.jumper.setShipAI(new DontMoveAI());
        this.jumper.addListener(new DamageWhenOutOfBounds(this.jumper));

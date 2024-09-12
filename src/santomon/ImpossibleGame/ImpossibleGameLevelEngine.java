@@ -7,7 +7,9 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 import java.awt.Color;
+
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.*;
@@ -32,6 +34,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     private boolean gravityIsReversed = false;
     private ShipAPI spawnMarker;
     private ShipAPI victoryMarker;
+    private final Vector2f safeSpot;
 
 
     // i think the target speed is around 15 tiles per second.
@@ -40,7 +43,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public static final float objectVelocity = 600f;
     public static final float tileSize = 120f;  // kite has  a collision radius of 64  // prob should make this inferable, based on collision radius of ground ship
-    public static final  Vector2f jumperPosition = new Vector2f(- tileSize * 3,3 * tileSize);
+    public static final Vector2f jumperPosition = new Vector2f(-tileSize * 3, 3 * tileSize);
     public static final Vector2f targetVelocity = new Vector2f(-objectVelocity, 0);
     public static final float spawnPrecision = 2f;
     public static final float spawnInterval = tileSize / spawnPrecision / objectVelocity / timeMultiplier;
@@ -51,7 +54,10 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public ImpossibleGameLevelEngine(int[][] levelData, int[] gravityData, HashMap<Integer, Color> colorData, final HashMap<Integer, String> objectLookUpTable) {
 
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         // spawn the jumper; 3 tiles away from the middle
+//        this.safeSpot = new Vector2f(combatEngineAPI.getMapWidth() / 2 - 500, combatEngineAPI.getMapHeight() / 2 - 500);
+        this.safeSpot = new Vector2f(0, 0);
         this.levelData = levelData;
         this.objectLookUpTable = objectLookUpTable;
         this.gravityData = gravityData;
@@ -60,7 +66,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         this.availableEntitiesForSpawning = new HashMap<String, List<ShipAPI>>() {{
             for (String entityID : objectLookUpTable.values()) {
                 if (entityID != null) {
-                    put(entityID, new ArrayList<ShipAPI>() );
+                    put(entityID, new ArrayList<ShipAPI>());
                 }
             }
         }};
@@ -73,7 +79,6 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
     public List<JumpScript> getJumpScripts() {
         return this.jumpScripts;
     }
-
 
 
     @Override
@@ -143,7 +148,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         Vector2f lowestPointSpawnPosition = calculateSpawnPosition(i);
         Vector2f currentSpawnPosition = new Vector2f().set(lowestPointSpawnPosition);
 
-        while (currentSpawnPosition.x >= - combatEngineAPI.getMapWidth() / 2) {
+        while (currentSpawnPosition.x >= -combatEngineAPI.getMapWidth() / 2) {
             ShipAPI groundShip = spawnEntity(1, currentSpawnPosition);
             currentSpawnPosition.setX(currentSpawnPosition.x - tileSize);
         }
@@ -229,7 +234,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     public void teleportEntityToSafety(ShipAPI entity) {
         entity.setPhased(true);
-        entity.getLocation().set(100, 100);
+        entity.getLocation().set(this.safeSpot);
         entity.getVelocity().set(0, 0);
 
     }
@@ -251,7 +256,8 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         CombatFleetManagerAPI enemyFleetManagerAPI = Global.getCombatEngine().getFleetManager(owner);
         int signum = !this.gravityIsReversed ? 1 : -1;
         ShipAPI entity = enemyFleetManagerAPI.spawnShipOrWing(entityID, spawnPosition, signum * 90f);
-        if (key==3) {
+        entity.setShipAI(new DontMoveAI());
+        if (key == 3) {
             entity.addTag(IMPOSSIBLE_VICTORY_FLAG);
             this.victoryMarker = entity;
             this.victoryMarker.setPhased(true);
@@ -273,7 +279,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
 
     public static boolean getIsShipOutOfBounds(ShipAPI ship) {
-        Vector2f shipLocation  = ship.getLocation();
+        Vector2f shipLocation = ship.getLocation();
         float mapSizeX = Global.getCombatEngine().getMapWidth();
         float mapSizeY = Global.getCombatEngine().getMapHeight();
         return shipLocation.x < -mapSizeX / 2 || shipLocation.x > mapSizeX / 2 || shipLocation.y < -mapSizeY / 2 || shipLocation.y > mapSizeY / 2;
