@@ -69,6 +69,7 @@ public class VictoryCelebration extends BaseEveryFrameCombatPlugin {
 
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         combatEngineAPI.spawnExplosion(location, new Vector2f(0, 0), explosionColor, explosionSize, explosionDuration);
+        Global.getSoundPlayer().playSound("explosion_ship", 1, 1, location, new Vector2f(0, 0));
 
     }
 
