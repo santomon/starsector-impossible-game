@@ -93,7 +93,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
             this.currentLevelStage += 1;
 
             // prob enough if we do it only when we spawn shit
-            markObsoleteShipsForTeleportation();
+            teleportObsoleteShipsToSafety();
             if (checkVictory()) {
                 maybeInitiateVictoryRoutine();
             }
@@ -225,7 +225,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
 
     }
 
-    public void markObsoleteShipsForTeleportation() {
+    public void teleportObsoleteShipsToSafety() {
         // not sure if this is even necessary, as the engine seems to despawn out of  bounds ships by itself or sth
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         CombatFleetManagerAPI fleetManagerAPI = Global.getCombatEngine().getFleetManager(1);
