@@ -1,19 +1,13 @@
-package data.missions.xddmission;
-
-import java.util.List;
+package data.missions.chaoz_fantasy;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
-import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.fleet.FleetGoal;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.mission.MissionDefinitionAPI;
 import com.fs.starfarer.api.mission.MissionDefinitionPlugin;
-import org.json.JSONObject;
-import org.lwjgl.Sys;
 import santomon.ImpossibleGame.ImpossibleGameLevelPlugin;
 
 public class MissionDefinition implements MissionDefinitionPlugin {
