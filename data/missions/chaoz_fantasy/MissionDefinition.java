@@ -14,10 +14,6 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
 	public void defineMission(MissionDefinitionAPI api) {
 
-		
-		// Set up the fleets so we can add ships and fighter wings to them.
-		// In this scenario, the fleets are attacking each other, but
-		// in other scenarios, a fleet may be defending or trying to escape
 		api.initFleet(FleetSide.PLAYER, "xdd", FleetGoal.ATTACK, false, 5);
 		api.initFleet(FleetSide.ENEMY, "FUMO", FleetGoal.ATTACK, true);
 
