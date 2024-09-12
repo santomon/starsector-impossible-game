@@ -19,28 +19,14 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		// In this scenario, the fleets are attacking each other, but
 		// in other scenarios, a fleet may be defending or trying to escape
 		api.initFleet(FleetSide.PLAYER, "xdd", FleetGoal.ATTACK, false, 5);
-		api.initFleet(FleetSide.ENEMY, "fumo", FleetGoal.ATTACK, true);
+		api.initFleet(FleetSide.ENEMY, "FUMO", FleetGoal.ATTACK, true);
 
+		api.setFleetTagline(FleetSide.PLAYER, "Player");
+		api.setFleetTagline(FleetSide.ENEMY, "Spikey Bois");
 
+		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd PlayerShip", true);
+		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "XDD EnemyFlagShip", true);
 
-		// Set a small blurb for each fleet that shows up on the mission detail and
-		// mission results screens to identify each side.
-		api.setFleetTagline(FleetSide.PLAYER, "Tri-Tachyon phase group Gamma III");
-		api.setFleetTagline(FleetSide.ENEMY, "Hegemony special anti-raider patrol force");
-		
-		// These show up as items in the bulleted list under 
-		// "Tactical Objectives" on the mission detail screen
-		api.addBriefingItem("Defeat all enemy forces");
-
-		// Set up the enemy fleet.
-//		api.addToFleet(FleetSide.ENEMY, "enforcer_Elite", FleetMemberType.SHIP, "HSS Judicature", true);
-		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Cain", true);
-		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd Enemy", true);
-		CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-
-
-
-		// Set up the map.
 		float width = 4000f;
 		float height = 4000f;
 		api.initMap(-width/2f, width/2f, -height/2f, height/2f);
