@@ -14,7 +14,7 @@ import org.lwjgl.util.vector.Vector2f;
 public class KillPlayerWhenAnyPlayerDamageIsTaken implements DamageListener {
 
     public final float damage = 1000000;
-    public final float graceTimeInSeconds = 3;
+    public final float graceTimeInSeconds = 1;
     public final String killScriptID = "impossible_KillPlayerWhenAnyPlayerDamageIsTaken";
     private final float atInstantiationTimeStamp;
 
