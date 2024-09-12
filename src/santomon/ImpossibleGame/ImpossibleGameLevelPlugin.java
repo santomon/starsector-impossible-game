@@ -100,6 +100,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
      }
 
     private void maybeStopMusic() {
+        // // for some reason this causes freeze lol
 //        if (Global.getCombatEngine().getPlayerShip() == null) {
 //            Global.getSoundPlayer().pauseCustomMusic();
 //            return;
