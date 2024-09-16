@@ -1,4 +1,4 @@
-package data.shipsystems.scritps;
+package santomon.ImpossibleGame;
 
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
