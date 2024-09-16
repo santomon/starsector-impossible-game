@@ -18,15 +18,12 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		api.setFleetTagline(FleetSide.PLAYER, "Player");
 		api.setFleetTagline(FleetSide.ENEMY, "Spikey Bois");
 
-		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd PlayerShip", true);
-		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "FUMO EnemyFlagShip", true);
+		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_conquest_Standard", FleetMemberType.SHIP, "xdd PlayerShip", true);
 
 		float width = 4000f;
 		float height = 4000f;
 		api.initMap(-width/2f, width/2f, -height/2f, height/2f);
 
-		ImpossibleGameLevelPlugin plugin = new ImpossibleGameLevelPlugin("chaoz_fantasy");
-		api.addPlugin(plugin);
 	}
 
 }

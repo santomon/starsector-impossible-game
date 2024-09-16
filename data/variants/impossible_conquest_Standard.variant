@@ -1,0 +1,13 @@
+{
+    "displayName": "Impossible",
+    "fluxCapacitors": 0,
+    "fluxVents": 0,
+    "goalVariant": true,
+    #"systemId":"impossible_timewinder",
+    "hullId": "conquest",
+    "hullMods": [],
+    "permaMods": [],
+    "sMods": [],
+    "variantId": "impossible_conquest_Standard",
+    "weaponGroups": []
+}

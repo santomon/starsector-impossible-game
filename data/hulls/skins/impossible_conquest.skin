@@ -1,0 +1,22 @@
+{
+	"baseHullId":"conquest",
+	"skinHullId":"impossible_conquest",
+	"hullName":"Conquest (IMP)",
+	"incompatibleWithBaseHull":false, # for the autofit dialog
+	"descriptionId":"conquest",
+	"descriptionPrefix":"Conquest design of otherworldly origin.",
+	"tags":[],
+	"tech":"Impossible",
+	"fleetPoints":35,
+	"systemId":"impossible_timewinder",
+	"ordnancePoints":240,
+	"baseValueMult":1.1,
+	"spriteName":"graphics/ships/conquest/conquest.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[],
+	"builtInWeapons":{
+    },
+}
