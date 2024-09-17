@@ -15,8 +15,8 @@ public class DriftSideSwap extends BaseHullMod {
     Logger log = Global.getLogger(DriftSideSwap.class);
 
     List<String> sides = new ArrayList<String>() {{
-        add("impossible_starboard_assault");
-        add("impossible_port_assault");
+        add(StarboardAssault.tag);
+        add(PortAssault.tag);
     }};
 
     String previouslySelected;

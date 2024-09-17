@@ -6,7 +6,7 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 
 public class StarboardAssault extends BaseHullMod {
-//    public static final String tag = "impossible_starboard_assault";
+    public static final String tag = "impossible_starboard_assault";
 
 
 
