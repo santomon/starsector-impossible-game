@@ -16,7 +16,7 @@
 	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
 	"removeBuiltInMods":[], 		# hullmod ids
 	"removeBuiltInWeapons":[], 		# weapon slot ids
-	"builtInMods":[],
+	"builtInMods":["impossible_drift_swap"],
 	"builtInWeapons":{
     },
 }
