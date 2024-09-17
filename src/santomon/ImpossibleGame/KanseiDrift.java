@@ -17,6 +17,7 @@ import java.util.List;
 public class KanseiDrift extends BaseShipSystemScript {
     Logger log = Global.getLogger(KanseiDrift.class);
     boolean hasBeenActivated = false;
+    float facingAtStart;
 
     static final float targetInitialAngle = 45f;
     static final float explosiveAcceleration = 900f;
@@ -37,6 +38,7 @@ public class KanseiDrift extends BaseShipSystemScript {
             List<DelayedFlux> delayedFluxes = ship.getListeners(DelayedFlux.class);
             if (delayedFluxes.isEmpty()) return;  // impossible, right???
             delayedFluxes.get(0).addFlux(fluxCost);
+            this.facingAtStart = ship.getFacing();
         }
 
         log.info("effectLevel: " + effectLevel);
@@ -44,14 +46,16 @@ public class KanseiDrift extends BaseShipSystemScript {
         if (state == State.IN) {
             boolean right = ship.getVariant().getHullMods().contains(StarboardAssault.tag);
             if (!right) {
-                if (!ship.getVariant().getHullMods().contains(PortAssault.tag) ) {
+                if (!ship.getVariant().getHullMods().contains(PortAssault.tag)) {
                     return;
                 }
             }
 
             float timePassed = combatEngineAPI.getElapsedInLastFrame();
 
-        };
+
+        }
+        ;
 
         if (state == State.ACTIVE) {
             // actual drifting
@@ -62,8 +66,6 @@ public class KanseiDrift extends BaseShipSystemScript {
         if (state == State.OUT) {
             // state of extreme deceleration
         }
-
-
 
 
     }
@@ -77,7 +79,6 @@ public class KanseiDrift extends BaseShipSystemScript {
     private void kanseiDriftPhase2() {
 
     }
-
 
 
     public void unapply(MutableShipStatsAPI stats, String id) {
@@ -126,7 +127,7 @@ class DelayedFlux implements AdvanceableListener {
     final float fluxRate = 400; // flux/s
     final boolean hardFlux = true;
 
-    DelayedFlux (ShipAPI ship) {
+    DelayedFlux(ShipAPI ship) {
         this.ship = ship;
     }
 
@@ -157,7 +158,7 @@ class DelayedFlux implements AdvanceableListener {
     }
 
     private void pruneFluxToApply() {
-        for (int i = fluxToApply.size() - 1; i >= 0 ; i--) {
+        for (int i = fluxToApply.size() - 1; i >= 0; i--) {
             if (fluxToApply.get(i) <= 0) fluxToApply.remove(i);
         }
 
