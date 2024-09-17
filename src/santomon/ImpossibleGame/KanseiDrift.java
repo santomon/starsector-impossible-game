@@ -27,6 +27,7 @@ public class KanseiDrift extends BaseShipSystemScript {
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
 
 
+
         ShipAPI ship = (ShipAPI) stats.getEntity();
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
 
@@ -39,7 +40,11 @@ public class KanseiDrift extends BaseShipSystemScript {
             if (delayedFluxes.isEmpty()) return;  // impossible, right???
             delayedFluxes.get(0).addFlux(fluxCost);
             this.facingAtStart = ship.getFacing();
+            combatEngineAPI.getViewport().setExternalControl(true);
         }
+
+        // lock on for the duration of the drift
+        combatEngineAPI.getViewport().setCenter(ship.getLocation());
 
         log.info("effectLevel: " + effectLevel);
 
@@ -84,6 +89,7 @@ public class KanseiDrift extends BaseShipSystemScript {
     public void unapply(MutableShipStatsAPI stats, String id) {
         // called once at the end ig; maybe even once at combat start or sth..
         this.hasBeenActivated = false;
+        Global.getCombatEngine().getViewport().setExternalControl(false);
     }
 
     public StatusData getStatusData(int index, State state, float effectLevel) {
