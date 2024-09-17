@@ -8,7 +8,7 @@
 	"tags":[],
 	"tech":"Impossible",
 	"fleetPoints":35,
-	"systemId":"impossible_timewinder",
+	"systemId":"impossible_kansei_drift",
 	"ordnancePoints":240,
 	"baseValueMult":1.1,
 	"spriteName":"graphics/ships/conquest/conquest.png",

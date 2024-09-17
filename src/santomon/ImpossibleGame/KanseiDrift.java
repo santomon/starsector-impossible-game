@@ -1,16 +1,14 @@
 package santomon.ImpossibleGame;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.ControlGroupsAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipSystemAPI;
-import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import org.apache.log4j.Logger;
 
-public class ImpossibleTimewinder extends BaseShipSystemScript {
-    Logger log = Global.getLogger(ImpossibleTimewinder.class);
+public class KanseiDrift extends BaseShipSystemScript {
+    Logger log = Global.getLogger(KanseiDrift.class);
     ShipAPI ship;
 
 

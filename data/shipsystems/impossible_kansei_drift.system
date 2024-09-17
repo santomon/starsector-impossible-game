@@ -1,9 +1,9 @@
 {
-	"id":"impossible_timewinder",
+	"id":"impossible_kansei_drift",
 	"type":"ENGINE_MOD",
 	"aiType":"DYNAMIC_STABILIZER",
 
-	"statsScript":"santomon.ImpossibleGame.ImpossibleTimewinder",
+	"statsScript":"santomon.ImpossibleGame.KanseiDrift",
 
 	#"engineGlowColor":[255,175,125,255],
 	#"engineGlowContrailColor":[100,165,255,25],
