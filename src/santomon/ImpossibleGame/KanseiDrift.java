@@ -1,5 +1,6 @@
 package santomon.ImpossibleGame;
 
+import com.fs.graphics.M;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
@@ -16,11 +17,14 @@ public class KanseiDrift extends BaseShipSystemScript {
     private static final float STAGE_1_ACCELERATION_ANGLE = 30f;
     static final float MAX_ACCELERATION = 900f;
     static final float MAX_DECELERATION = 300f;
-    static final float NORMAL_SPEED = 45f;
 
-    static final float explosiveAcceleration = 900f;
+    static final float STAGE_2_VELOCITY_TURNING_SPEED = 45f;
+//    static final float STAGE_2_MAXIMUM_ANGLE_ACC
+
+    static final float STAGE_3_NORMAL_SPEED_FACTOR = 1f;  // automatic deceleration target speed (factor * ship's max speed);
+
     static final float fluxCost = 5000;
-    private static final float STAGE_1_ACCELERATION_MAX_EFFECT_LEVEL = 0.5f;
+    private static final float STAGE_1_ACCELERATION_MAX_EFFECT_LEVEL = 0.8f;
     final Logger log = Global.getLogger(KanseiDrift.class);
 
 
@@ -55,6 +59,7 @@ public class KanseiDrift extends BaseShipSystemScript {
             this.initialCursorIsLeft = isCursorLeftOfShip(ship);
         }
 
+        float timePassed = combatEngineAPI.getElapsedInLastFrame();
         // lock on for the duration of the drift
 //        if (Objects.equals(combatEngineAPI.getPlayerShip(), ship)) combatEngineAPI.getViewport().setCenter(ship.getLocation());
 
@@ -66,15 +71,12 @@ public class KanseiDrift extends BaseShipSystemScript {
 //                }
 //            }
 //
-            float timePassed = combatEngineAPI.getElapsedInLastFrame();
             kanseiDriftPhase1(ship, timePassed, effectLevel);
-
-
         }
         ;
 
         if (state == State.ACTIVE) {
-            // actual drifting
+            kanseiDriftPhase2(ship, timePassed);
 
         }
 
@@ -97,12 +99,9 @@ public class KanseiDrift extends BaseShipSystemScript {
                 (float) Math.sin(Math.toRadians(accelerationAngle))
         );
 
-        log.info("initial ship facing: " + this.initialFacing);
-        log.info("accel angle: " + accelerationAngle);
-        log.info("accel dir: " + accelerationDir);
 
         // Apply acceleration
-        if (STAGE_1_ACCELERATION_MAX_EFFECT_LEVEL < effectLevel) {
+        if (effectLevel < STAGE_1_ACCELERATION_MAX_EFFECT_LEVEL) {
             float accelerationMagnitude = MAX_ACCELERATION * timePassed * (1 - effectLevel);
             ship.getVelocity().setX(ship.getVelocity().x + accelerationDir.x * accelerationMagnitude);
             ship.getVelocity().setY(ship.getVelocity().y + accelerationDir.y * accelerationMagnitude);
@@ -140,7 +139,23 @@ public class KanseiDrift extends BaseShipSystemScript {
     }
 
 
-    private void kanseiDriftPhase2() {
+    private void kanseiDriftPhase2(ShipAPI ship, float timePassed) {
+        // to note; getFacing returns angles from 0 - 360deg, counterclockwise starting at 0 == east.
+        Vector2f cursorLocation = getCursorLocation();
+        Vector2f toCursor = Vector2f.sub(cursorLocation, ship.getLocation(), null);
+        float angleToCover = KanseiDrift.angleBetween(ship.getVelocity(), toCursor, false);
+        log.info("angleToCover: " + angleToCover);
+        float signum = angleToCover > 0 ? 1 : -1;
+        float rotationAngleSize = Math.min(Math.abs(angleToCover * timePassed), STAGE_2_VELOCITY_TURNING_SPEED * timePassed);
+        Vector2f newVelocityVector = KanseiDrift.rotate(ship.getVelocity(), rotationAngleSize * signum);
+
+        ship.getVelocity().set(newVelocityVector);
+
+
+    }
+
+
+    private void kanseiDriftPhase3(){
 
     }
 
@@ -184,6 +199,70 @@ public class KanseiDrift extends BaseShipSystemScript {
 
     public int getUsesOverride(ShipAPI ship) {
         return -1;
+    }
+
+    public static float angleBetween(Vector2f v1, Vector2f v2, boolean as0to360Angle) {
+        // the Vector2f.angle only returns positive values between 0 and pi...
+        // Normalize the vectors
+        Vector2f normV1 = new Vector2f(v1);
+        normV1.normalise();
+        Vector2f normV2 = new Vector2f(v2);
+        normV2.normalise();
+
+        float angleRadians = Vector2f.angle(normV1, normV2);
+
+        // Convert to degrees
+        float angleDegrees = (float) Math.toDegrees(angleRadians);
+        float crossProduct = normV1.x * normV2.y - normV1.y * normV2.x;
+
+        // Calculate the 2D cross product (determinant in 2D)
+        if (as0to360Angle) {
+            // If the cross product is negative, the angle is clockwise, so adjust the result
+            if (crossProduct < 0) {
+                angleDegrees = 360.0f - angleDegrees;
+            }
+        } else {
+            angleDegrees = crossProduct < 0 ? -angleDegrees : angleDegrees;
+        }
+
+        return angleDegrees;
+    }
+
+
+    public static Vector2f rotate(Vector2f v, float angleDegrees) {
+        // Convert the angle from degrees to radians
+        float angleRadians = (float) Math.toRadians(angleDegrees);
+
+        // Get the cosine and sine of the angle
+        float cosTheta = (float) Math.cos(angleRadians);
+        float sinTheta = (float) Math.sin(angleRadians);
+
+        // Apply the rotation matrix
+        float newX = v.x * cosTheta - v.y * sinTheta;
+        float newY = v.x * sinTheta + v.y * cosTheta;
+
+        // Return the rotated vector as a new Vector2f
+        return new Vector2f(newX, newY);
+    }
+
+    public static float as0to360Angle(Vector2f v) {
+        float angleRadians = (float) Math.atan2(v.y, v.x);
+
+        // Convert radians to degrees
+        float angleDegrees = (float) Math.toDegrees(angleRadians);
+
+        // Ensure the angle is within the range [0, 360]
+        if (angleDegrees < 0) {
+            angleDegrees += 360.0f;
+        }
+        return angleDegrees;
+    }
+
+    public static Vector2f asVector2f(float angleInDeg) {
+        return new Vector2f(
+                (float) Math.cos(Math.toRadians(angleInDeg)),
+                (float) Math.sin(Math.toRadians(angleInDeg))
+        );
     }
 
 
