@@ -13,19 +13,23 @@ import java.util.List;
 
 public class KanseiDrift extends BaseShipSystemScript {
     private static final float ANGULAR_ACCELERATION = 200f;
-    Logger log = Global.getLogger(KanseiDrift.class);
+    private static final float STAGE_1_ACCELERATION_ANGLE = 30f;
+    static final float MAX_ACCELERATION = 900f;
+    static final float MAX_DECELERATION = 300f;
+    static final float NORMAL_SPEED = 45f;
+
+    static final float explosiveAcceleration = 900f;
+    static final float fluxCost = 5000;
+    final Logger log = Global.getLogger(KanseiDrift.class);
+
+
     boolean hasBeenActivated = false;
     Float initialFacing;
+    Boolean initialCursorIsLeft;
     Vector2f initialCursorLocation;
     Vector2f initialShipLocation;
 
-    static final float MAX_ACCELERATION = 300f;
-    static final float MAX_DECELERATION = 300f;
-    static final float NORMAL_SPEED = 30f;
 
-    static final float targetInitialAngle = 45f;
-    static final float explosiveAcceleration = 900f;
-    static final float fluxCost = 5000;
 
 
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
@@ -39,6 +43,7 @@ public class KanseiDrift extends BaseShipSystemScript {
             ship.addListener(new DelayedFlux(ship));
         }
         if (!this.hasBeenActivated) {
+            log.info("setting new initial Params");
             this.hasBeenActivated = true;
             List<DelayedFlux> delayedFluxes = ship.getListeners(DelayedFlux.class);
             if (delayedFluxes.isEmpty()) return;  // impossible, right???
@@ -46,13 +51,11 @@ public class KanseiDrift extends BaseShipSystemScript {
             this.initialFacing = ship.getFacing();
             this.initialCursorLocation = getCursorLocation();
             this.initialShipLocation = ship.getLocation();
-//            combatEngineAPI.getViewport().setExternalControl(true);
+            this.initialCursorIsLeft = isCursorLeftOfShip(ship);
         }
 
         // lock on for the duration of the drift
 //        if (Objects.equals(combatEngineAPI.getPlayerShip(), ship)) combatEngineAPI.getViewport().setCenter(ship.getLocation());
-
-        log.info("effectLevel: " + effectLevel);
 
         if (state == State.IN) {
 //            boolean right = ship.getVariant().getHullMods().contains(StarboardAssault.tag);
@@ -83,45 +86,29 @@ public class KanseiDrift extends BaseShipSystemScript {
     }
 
     private void kanseiDriftPhase1(ShipAPI ship, float timePassed, float effectLevel ) {
-        // Fetch current positions
-        Vector2f shipPos = ship.getLocation();
-        Vector2f cursorPos = getCursorLocation();
 
-        // Calculate direction vectors
-        Vector2f toCursor = Vector2f.sub(cursorPos, shipPos, null);
-        toCursor.normalise();
+        float direction = this.initialCursorIsLeft ? 1 : -1;
+        log.info("isCursorLeftOfShip: " + this.initialCursorIsLeft);
 
-        float shipFacingAngle = ship.getFacing();
-        Vector2f shipFacingVector = new Vector2f(
-                (float) Math.cos(Math.toRadians(shipFacingAngle)),
-                (float) Math.sin(Math.toRadians(shipFacingAngle))
-        );
-
-        // Weighted average direction (more weight towards ship's facing)
-        float weightFacing = 0.7f;
-        float weightCursor = 0.3f;
+        float accelerationAngle = direction * STAGE_1_ACCELERATION_ANGLE + initialFacing;
         Vector2f accelerationDir = new Vector2f(
-                shipFacingVector.x * weightFacing + toCursor.x * weightCursor,
-                shipFacingVector.y * weightFacing + toCursor.y * weightCursor
+                (float) Math.cos(Math.toRadians(accelerationAngle)),
+                (float) Math.sin(Math.toRadians(accelerationAngle))
         );
-        accelerationDir.normalise();
 
-
-        log.info("cursorLocation: " + cursorPos);
-        log.info("shipLocation: " + shipPos);
-        log.info("shipFacingAngle: " + shipFacingAngle);
-        log.info("isCursorLeftOfShip: " + isCursorLeftOfShip(ship, true));
+        log.info("initial ship facing: " + this.initialFacing);
+        log.info("accel angle: " + accelerationAngle);
+        log.info("accel dir: " + accelerationDir);
 
         // Apply acceleration
         float accelerationMagnitude = MAX_ACCELERATION * timePassed * (1 - effectLevel);
-        ship.getVelocity().x += accelerationDir.x * accelerationMagnitude;
-        ship.getVelocity().y += accelerationDir.y * accelerationMagnitude;
+        ship.getVelocity().setX(ship.getVelocity().x + accelerationDir.x * accelerationMagnitude);
+        ship.getVelocity().setY(ship.getVelocity().y + accelerationDir.y * accelerationMagnitude);
 
         // Rotate ship to face away from the initial cursor position
         // maybe its better if we dont care about the actual cursor position, but only whether the cursor is left or right of us
-        float direction = isCursorLeftOfShip(ship, true) ? -1 : 1;
         float acceleratingOrDecelerating = effectLevel < 0.5 ? 1 : -1;
-        float dAngle = direction * timePassed * acceleratingOrDecelerating * ANGULAR_ACCELERATION;
+        float dAngle = - direction * timePassed * acceleratingOrDecelerating * ANGULAR_ACCELERATION;
         ship.setAngularVelocity(ship.getAngularVelocity() + dAngle);
 
     }
@@ -131,16 +118,15 @@ public class KanseiDrift extends BaseShipSystemScript {
         ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
         float cursorX = viewportAPI.convertScreenXToWorldX(Mouse.getX());
         float cursorY = viewportAPI.convertScreenYToWorldY(Mouse.getY());
-
         return new Vector2f(cursorX, cursorY);
     }
 
-    private boolean isCursorLeftOfShip(ShipAPI ship, boolean useInitialParams) {
-        Vector2f shipPos = useInitialParams ? this.initialShipLocation : ship.getLocation();
-        float shipFacingAngle = useInitialParams ? this.initialFacing : ship.getFacing();
+    private boolean isCursorLeftOfShip(ShipAPI ship) {
+        Vector2f shipPos = ship.getLocation();
+        float shipFacingAngle = ship.getFacing();
         float leftAngle = shipFacingAngle + 90f;
 
-        Vector2f cursorLocation = useInitialParams? this.initialCursorLocation : getCursorLocation();
+        Vector2f cursorLocation = getCursorLocation();
         Vector2f toCursor = Vector2f.sub(cursorLocation, shipPos, null);
 
         Vector2f leftVector = new Vector2f(
@@ -162,6 +148,7 @@ public class KanseiDrift extends BaseShipSystemScript {
         this.initialFacing = null;
         this.initialCursorLocation = null;
         this.initialShipLocation = null;
+        this.initialCursorIsLeft = null;
 //        if (Objects.equals(Global.getCombatEngine().getPlayerShip(), (ShipAPI) stats.getEntity())) {
 //            Global.getCombatEngine().getViewport().setExternalControl(false);
 //        }
