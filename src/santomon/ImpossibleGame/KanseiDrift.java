@@ -11,15 +11,18 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class KanseiDrift extends BaseShipSystemScript {
+
     private static final float ANGULAR_ACCELERATION = 200f;
     private static final float STAGE_1_ACCELERATION_ANGLE = 30f;
     static final float MAX_ACCELERATION = 900f;
     static final float MAX_DECELERATION = 300f;
 
     static final float STAGE_2_VELOCITY_TURNING_SPEED = 45f;
-//    static final float STAGE_2_MAXIMUM_ANGLE_ACC
+    static final float STAGE_2_ANGULAR_VELOCITY_PROPORTIONALITY_CONSTANT = 6f;
+    static final float STAGE_2_MAXIMUM_ANGULAR_VELOCITY = 90f;
 
     static final float STAGE_3_NORMAL_SPEED_FACTOR = 1f;  // automatic deceleration target speed (factor * ship's max speed);
 
@@ -33,11 +36,18 @@ public class KanseiDrift extends BaseShipSystemScript {
     Boolean initialCursorIsLeft;
     Vector2f initialCursorLocation;
     Vector2f initialShipLocation;
+    Vector2f initialCameraCenter;
+    float stage2AngularVelocity;
+    boolean stage2ReachedTargetAngleOnce = false;
+    boolean stage3ReachedTargetSpeedOnce = false;
 
 
 
 
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
+//        ShipSystemAPI shipSystemAPI;
+//        ShipSystemSpecAPI shipSystemSpecAPI;
+//        shipSystemSpecAPI.getActive();
 
 
 
@@ -55,13 +65,19 @@ public class KanseiDrift extends BaseShipSystemScript {
             delayedFluxes.get(0).addFlux(fluxCost);
             this.initialFacing = ship.getFacing();
             this.initialCursorLocation = getCursorLocation();
-            this.initialShipLocation = ship.getLocation();
+            this.initialShipLocation = new Vector2f().set(ship.getLocation());
             this.initialCursorIsLeft = isCursorLeftOfShip(ship);
+            this.stage2ReachedTargetAngleOnce = false;
+            this.stage3ReachedTargetSpeedOnce = false;
+            if (Objects.equals(combatEngineAPI.getPlayerShip(), ship)) {
+                this.initialCameraCenter = new Vector2f().set(combatEngineAPI.getViewport().getCenter());
+                log.info("initial camera center we retrieved: " + this.initialCameraCenter);
+                combatEngineAPI.getViewport().setExternalControl(true);
+            }
         }
 
         float timePassed = combatEngineAPI.getElapsedInLastFrame();
         // lock on for the duration of the drift
-//        if (Objects.equals(combatEngineAPI.getPlayerShip(), ship)) combatEngineAPI.getViewport().setCenter(ship.getLocation());
 
         if (state == State.IN) {
 //            boolean right = ship.getVariant().getHullMods().contains(StarboardAssault.tag);
@@ -83,15 +99,27 @@ public class KanseiDrift extends BaseShipSystemScript {
 
         if (state == State.OUT) {
             // state of extreme deceleration
+            kanseiDriftPhase3(ship, timePassed, effectLevel);
         }
 
 
     }
 
     private void kanseiDriftPhase1(ShipAPI ship, float timePassed, float effectLevel ) {
+        if (Objects.equals(ship, Global.getCombatEngine().getPlayerShip())){
+            // smoothly taking over control of the camera
+            ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
+            float rescaledEffectLevel = Math.min(2 * effectLevel, 1); // finished centering camera at 50% effectLevel
+            viewportAPI.setCenter(
+                    new Vector2f(
+                            this.initialCameraCenter.x * (1 - rescaledEffectLevel) + ship.getLocation().x * rescaledEffectLevel,
+                            this.initialCameraCenter.y * (1 - rescaledEffectLevel) + ship.getLocation().y * rescaledEffectLevel
+                    )
+            );
+
+        }
 
         float direction = this.initialCursorIsLeft ? 1 : -1;
-        log.info("isCursorLeftOfShip: " + this.initialCursorIsLeft);
 
         float accelerationAngle = direction * STAGE_1_ACCELERATION_ANGLE + initialFacing;
         Vector2f accelerationDir = new Vector2f(
@@ -140,22 +168,67 @@ public class KanseiDrift extends BaseShipSystemScript {
 
 
     private void kanseiDriftPhase2(ShipAPI ship, float timePassed) {
+        // maybe it's much more
         // to note; getFacing returns angles from 0 - 360deg, counterclockwise starting at 0 == east.
+        if (Objects.equals(ship, Global.getCombatEngine().getPlayerShip())) {
+            Global.getCombatEngine().getViewport().setCenter(ship.getLocation());
+        }
+
         Vector2f cursorLocation = getCursorLocation();
         Vector2f toCursor = Vector2f.sub(cursorLocation, ship.getLocation(), null);
-        float angleToCover = KanseiDrift.angleBetween(ship.getVelocity(), toCursor, false);
-        log.info("angleToCover: " + angleToCover);
-        float signum = angleToCover > 0 ? 1 : -1;
-        float rotationAngleSize = Math.min(Math.abs(angleToCover * timePassed), STAGE_2_VELOCITY_TURNING_SPEED * timePassed);
-        Vector2f newVelocityVector = KanseiDrift.rotate(ship.getVelocity(), rotationAngleSize * signum);
+        {
+            // first, update velocity direction
+            // for now, maintain velocity, regardless of distance to cursor or any other factors;
+            float angleToCover = KanseiDrift.angleBetween(ship.getVelocity(), toCursor, false);
+            float signum = angleToCover > 0 ? 1 : -1;
+            float rotationAngleSize = Math.min(Math.abs(angleToCover * timePassed), STAGE_2_VELOCITY_TURNING_SPEED * timePassed);
+            Vector2f newVelocityVector = KanseiDrift.rotate(ship.getVelocity(), rotationAngleSize * signum);
+            ship.getVelocity().set(newVelocityVector);
+        }
 
-        ship.getVelocity().set(newVelocityVector);
+
+        {
+            // update angular velocity..
+            float direction = initialCursorIsLeft ? 1 : -1;
+            float targetFacing = as0to360Angle(toCursor) + direction * 90f;
+            targetFacing = targetFacing < 0 ? targetFacing + 360f : targetFacing;
+            targetFacing = targetFacing % 360;
+//            log.info("targetFacing: " + targetFacing);
+//            log.info("currentFacing: " + ship.getFacing());
+
+
+            float newAngularVelocity = STAGE_2_ANGULAR_VELOCITY_PROPORTIONALITY_CONSTANT * (targetFacing - ship.getFacing());
+//            float newAngularVelocity = ship.getAngularVelocity() + acceleration * timePassed;
+            newAngularVelocity = (float) Math.max(- STAGE_2_MAXIMUM_ANGULAR_VELOCITY, Math.min(newAngularVelocity, STAGE_2_MAXIMUM_ANGULAR_VELOCITY));
+//            log.info("newAngularVelocity: " + newAngularVelocity);
+            ship.setAngularVelocity(newAngularVelocity);
+            this.stage2AngularVelocity = newAngularVelocity;
+        }
 
 
     }
 
 
-    private void kanseiDriftPhase3(){
+    private void kanseiDriftPhase3(ShipAPI ship, float timePassed, float effectLevel){
+        // how do we relinquish control?
+        if (Objects.equals(ship, Global.getCombatEngine().getPlayerShip())) {
+            // smoothly relinquishing camera control?
+            ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
+            Vector2f currentCenter = new Vector2f().set(viewportAPI.getCenter());
+            viewportAPI.setExternalControl(false);
+            Vector2f centerOfRelinquishedControl = new Vector2f().set(viewportAPI.getCenter());
+            log.info("currentcenter: " + currentCenter);
+            log.info("centerOfRelinquishedControl: " + centerOfRelinquishedControl);
+            viewportAPI.setExternalControl(true);
+
+
+        }
+
+
+        // think angular velocity should probably be automatically decelerating
+        // for now let's use effectLevel to determine the angular velocity
+        ship.setAngularVelocity(stage2AngularVelocity * effectLevel);
+
 
     }
 
@@ -167,9 +240,14 @@ public class KanseiDrift extends BaseShipSystemScript {
         this.initialCursorLocation = null;
         this.initialShipLocation = null;
         this.initialCursorIsLeft = null;
-//        if (Objects.equals(Global.getCombatEngine().getPlayerShip(), (ShipAPI) stats.getEntity())) {
-//            Global.getCombatEngine().getViewport().setExternalControl(false);
-//        }
+        this.initialCameraCenter = null;
+        this.stage2ReachedTargetAngleOnce = false;
+        this.stage3ReachedTargetSpeedOnce = false;
+
+        if (Objects.equals(Global.getCombatEngine().getPlayerShip(), (ShipAPI) stats.getEntity())) {
+            log.info("relinquishing camera control");
+            Global.getCombatEngine().getViewport().setExternalControl(false);
+        }
     }
 
     public StatusData getStatusData(int index, State state, float effectLevel) {
@@ -287,6 +365,8 @@ class DelayedFlux implements AdvanceableListener {
 
     @Override
     public void advance(float amount) {
+        System.out.println("viewport Center: " + Global.getCombatEngine().getViewport().getCenter()
+        );
         if (ship == null) return;
 
         applyFlux(amount);
