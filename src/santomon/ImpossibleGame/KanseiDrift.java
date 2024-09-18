@@ -20,6 +20,7 @@ public class KanseiDrift extends BaseShipSystemScript {
 
     static final float explosiveAcceleration = 900f;
     static final float fluxCost = 5000;
+    private static final float STAGE_1_ACCELERATION_MAX_EFFECT_LEVEL = 0.5f;
     final Logger log = Global.getLogger(KanseiDrift.class);
 
 
@@ -101,9 +102,11 @@ public class KanseiDrift extends BaseShipSystemScript {
         log.info("accel dir: " + accelerationDir);
 
         // Apply acceleration
-        float accelerationMagnitude = MAX_ACCELERATION * timePassed * (1 - effectLevel);
-        ship.getVelocity().setX(ship.getVelocity().x + accelerationDir.x * accelerationMagnitude);
-        ship.getVelocity().setY(ship.getVelocity().y + accelerationDir.y * accelerationMagnitude);
+        if (STAGE_1_ACCELERATION_MAX_EFFECT_LEVEL < effectLevel) {
+            float accelerationMagnitude = MAX_ACCELERATION * timePassed * (1 - effectLevel);
+            ship.getVelocity().setX(ship.getVelocity().x + accelerationDir.x * accelerationMagnitude);
+            ship.getVelocity().setY(ship.getVelocity().y + accelerationDir.y * accelerationMagnitude);
+        }
 
         // Rotate ship to face away from the initial cursor position
         // maybe its better if we dont care about the actual cursor position, but only whether the cursor is left or right of us
