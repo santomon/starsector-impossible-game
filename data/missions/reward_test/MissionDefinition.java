@@ -19,10 +19,10 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		api.setFleetTagline(FleetSide.ENEMY, "Spikey Bois");
 
 		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_conquest_Standard", FleetMemberType.SHIP, "xdd PlayerShip", true);
-		FleetMemberAPI enemy = api.addToFleet(FleetSide.ENEMY, "impossible_conquest_Standard", FleetMemberType.SHIP, "xdd PlayerShip", true);
+		FleetMemberAPI enemy = api.addToFleet(FleetSide.ENEMY, "defender_PD", FleetMemberType.SHIP, "xdd PlayerShip", true);
 
-		float width = 4000f;
-		float height = 4000f;
+		float width = 10000f;
+		float height = 10000f;
 		api.initMap(-width/2f, width/2f, -height/2f, height/2f);
 
 	}
