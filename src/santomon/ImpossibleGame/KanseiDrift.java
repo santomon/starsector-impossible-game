@@ -122,12 +122,12 @@ public class KanseiDrift extends BaseShipSystemScript {
     }
 
     private boolean isCursorLeftOfShip(ShipAPI ship) {
-        Vector2f shipPos = ship.getLocation();
+        Vector2f shipLocation = ship.getLocation();
         float shipFacingAngle = ship.getFacing();
         float leftAngle = shipFacingAngle + 90f;
 
         Vector2f cursorLocation = getCursorLocation();
-        Vector2f toCursor = Vector2f.sub(cursorLocation, shipPos, null);
+        Vector2f toCursor = Vector2f.sub(cursorLocation, shipLocation, null);
 
         Vector2f leftVector = new Vector2f(
                 (float) Math.cos(Math.toRadians(leftAngle)),
