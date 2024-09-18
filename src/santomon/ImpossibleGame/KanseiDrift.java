@@ -116,7 +116,6 @@ public class KanseiDrift extends BaseShipSystemScript {
                             this.initialCameraCenter.y * (1 - rescaledEffectLevel) + ship.getLocation().y * rescaledEffectLevel
                     )
             );
-
         }
 
         float direction = this.initialCursorIsLeft ? 1 : -1;
