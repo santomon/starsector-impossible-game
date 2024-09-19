@@ -7,6 +7,8 @@ impossible_keyBindingsHeader,Key Bindings,Header,Key Bindings,,,,,
 impossible_jumpKey,Jump Key,Keycode,16,,,,,
 impossible_alternativeJumpKey,Alternative Jump Key,Keycode,17,,,,,
 impossible_quickRestartKey,Quick Restart,Keycode,18,,,,,
+impossible_steerLeftKey,Steer Left,Keycode,30,,"when using KanseiDrift, adjust drift more towards the ship's left",,,
+impossible_steerRightKey,Steer Right,Keycode,32,,"when using KanseiDrift, adjust drift more towards the ship's sright",,,
 ,,,,,,,,
 impossible_jumpHeader,Jumping Header,Header,Jumping Physics,,,,,Physics
 impossible_jumpForce,Jump Force,Double,1000,,,1,10000,Physics

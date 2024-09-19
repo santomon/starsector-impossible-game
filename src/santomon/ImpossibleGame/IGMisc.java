@@ -35,6 +35,9 @@ public class IGMisc {
         public static final String ALTERNATIVE_JUMP_KEY_ID = "impossible_alternativeJumpKey";
         public static final String QUICK_RESTART_KEY_ID = "impossible_quickRestartKey";
 
+
+        public static final String STEER_LEFT_KEY_ID = "impossible_steerLeftKey";
+        public static final String STEER_RIGHT_KEY_ID = "impossible_steerRightKey";
     }
 
 
