@@ -18,9 +18,12 @@ public class KanseiDrift extends BaseShipSystemScript {
     static final float MAX_ACCELERATION = 900f;
     static final float MAX_DECELERATION = 300f;
 
+    static final float STAGE_2_INITIAL_VELOCITY_TURNING_SPEED = 60f;
+    static final float STAGE_2_INITIAL_ANGULAR_VELOCITY = 60f;
+    static final float STAGE_2_INITIAL_VELOCITY_TURN_DURATION = 1f;
+    //    private static final float STAGE_2_INITIAL_VELOCITY_OFFSET = 60;
     static final float STAGE_2_FLAT_STEERING_ANGLE = 5f;
     static final float STAGE_2_VELOCITY_BASE_TURNING_SPEED = 30f;
-    private static final float STAGE_2_INITIAL_VELOCITY_OFFSET = 60;
     static final float STAGE_2_ANGULAR_VELOCITY_PROPORTIONALITY_CONSTANT = 6f;
     static final float STAGE_2_MAXIMUM_ANGULAR_VELOCITY = 90f;
 
@@ -39,7 +42,8 @@ public class KanseiDrift extends BaseShipSystemScript {
     Vector2f initialShipLocation;
     Vector2f initialCameraCenter;
     float stage2AngularVelocity;
-    private boolean hasNotCalledPhase2InThisCycleYet = true;
+    float stage2ElapsedTime = 0f;
+    private boolean finishedInitialVelocityTurn = false;
     boolean stage2ReachedTargetAngleOnce = false;
     boolean stage3ReachedTargetSpeedOnce = false;
 
@@ -97,7 +101,8 @@ public class KanseiDrift extends BaseShipSystemScript {
             this.initialCursorLocation = getCursorLocation();
             this.initialShipLocation = new Vector2f().set(ship.getLocation());
             this.initialCursorIsLeft = isCursorLeftOfShip(ship);
-            this.hasNotCalledPhase2InThisCycleYet = true;
+            this.stage2ElapsedTime = 0f;
+            this.finishedInitialVelocityTurn = false;
             this.stage2ReachedTargetAngleOnce = false;
             this.stage3ReachedTargetSpeedOnce = false;
 
@@ -195,24 +200,33 @@ public class KanseiDrift extends BaseShipSystemScript {
     private void kanseiDriftPhase2(ShipAPI ship, float timePassed) {
         // maybe it's much more
         // to note; getFacing returns angles from 0 - 360deg, counterclockwise starting at 0 == east.
+
+
 //        if (Objects.equals(ship, Global.getCombatEngine().getPlayerShip())) {
 //            Global.getCombatEngine().getViewport().setCenter(ship.getLocation());
 //        }
 
+        this.stage2ElapsedTime += timePassed;
+
+        if (!this.finishedInitialVelocityTurn) {
+            // i.g. this is more like phase 2.1;
+            float direction = this.initialCursorIsLeft ? 1 : -1;
+            ship.getVelocity().set(
+                    KanseiDrift.rotate(ship.getVelocity(), -direction * timePassed * STAGE_2_INITIAL_VELOCITY_TURNING_SPEED)
+            );
+            ship.setAngularVelocity(direction * STAGE_2_INITIAL_ANGULAR_VELOCITY);
+
+            if (this.stage2ElapsedTime > STAGE_2_INITIAL_VELOCITY_TURN_DURATION) {
+                this.finishedInitialVelocityTurn = true;
+            }
+            return;
+        }
+
         {
             // first, update velocity direction
             // for now, maintain velocity, regardless of distance to cursor or any other factors;
-            if (this.hasNotCalledPhase2InThisCycleYet) {
-                this.hasNotCalledPhase2InThisCycleYet = false;
-                float direction = this.initialCursorIsLeft ? 1 : -1;
-                ship.getVelocity().set(
-                        KanseiDrift.rotate(ship.getVelocity(), -direction * STAGE_2_INITIAL_VELOCITY_OFFSET)
-                );
-            }
-
-
-            float angleToCover = STAGE_2_VELOCITY_BASE_TURNING_SPEED;
             float signum = this.initialCursorIsLeft ? 1 : -1;
+            float angleToCover = signum * STAGE_2_VELOCITY_BASE_TURNING_SPEED;
             if (this.isSteeringLeft()) {
                 angleToCover += STAGE_2_FLAT_STEERING_ANGLE;
             }
@@ -220,26 +234,28 @@ public class KanseiDrift extends BaseShipSystemScript {
                 angleToCover -= STAGE_2_FLAT_STEERING_ANGLE;
             }
             float rotationAngleSize = timePassed * angleToCover;
-            Vector2f newVelocityVector = KanseiDrift.rotate(ship.getVelocity(), rotationAngleSize * signum);
+            Vector2f newVelocityVector = KanseiDrift.rotate(ship.getVelocity(), rotationAngleSize);
             ship.getVelocity().set(newVelocityVector);
         }
 
+        {
+//            // update angular velocity..
+//            Vector2f currentCursorLocation = getCursorLocation();
+//            Vector2f toCurrentCursor = Vector2f.sub(currentCursorLocation, ship.getLocation(), null);
+//            float direction = initialCursorIsLeft ? 1 : -1;
+//            float targetFacing = as0to360Angle(toCurrentCursor) + direction * 90f;
+//            targetFacing = targetFacing < 0 ? targetFacing + 360f : targetFacing;
+//            targetFacing = targetFacing % 360;
+//
+//            float newAngularVelocity = STAGE_2_ANGULAR_VELOCITY_PROPORTIONALITY_CONSTANT * (targetFacing - ship.getFacing());
+////            float newAngularVelocity = ship.getAngularVelocity() + acceleration * timePassed;
+//            newAngularVelocity = (float) Math.max(-STAGE_2_MAXIMUM_ANGULAR_VELOCITY, Math.min(newAngularVelocity, STAGE_2_MAXIMUM_ANGULAR_VELOCITY));
+////            log.info("newAngularVelocity: " + newAngularVelocity);
+//            ship.setAngularVelocity(newAngularVelocity);
+//            this.stage2AngularVelocity = newAngularVelocity;
+        }
 
         {
-            // update angular velocity..
-            Vector2f currentCursorLocation = getCursorLocation();
-            Vector2f toCurrentCursor = Vector2f.sub(currentCursorLocation, ship.getLocation(), null);
-            float direction = initialCursorIsLeft ? 1 : -1;
-            float targetFacing = as0to360Angle(toCurrentCursor) + direction * 90f;
-            targetFacing = targetFacing < 0 ? targetFacing + 360f : targetFacing;
-            targetFacing = targetFacing % 360;
-
-            float newAngularVelocity = STAGE_2_ANGULAR_VELOCITY_PROPORTIONALITY_CONSTANT * (targetFacing - ship.getFacing());
-//            float newAngularVelocity = ship.getAngularVelocity() + acceleration * timePassed;
-            newAngularVelocity = (float) Math.max(-STAGE_2_MAXIMUM_ANGULAR_VELOCITY, Math.min(newAngularVelocity, STAGE_2_MAXIMUM_ANGULAR_VELOCITY));
-//            log.info("newAngularVelocity: " + newAngularVelocity);
-            ship.setAngularVelocity(newAngularVelocity);
-            this.stage2AngularVelocity = newAngularVelocity;
         }
 
 
