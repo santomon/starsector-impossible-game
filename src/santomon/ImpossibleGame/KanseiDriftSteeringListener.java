@@ -35,7 +35,7 @@ class KanseiDriftSteeringListener extends BaseEveryFrameCombatPlugin {
 
     public void advance(float amount, List<InputEventAPI> events) {
         for (InputEventAPI event : events) {
-            if (Objects.equals(event.getEventValue(), this.leftKey)) {
+            if (event.getEventValue() == this.leftKey) {
                 if(event.isKeyDownEvent()) {
                     for (KanseiDrift kanseiDrift : kanseiDrifts) {
                         kanseiDrift.setIsSteeringLeft(true);
@@ -50,7 +50,7 @@ class KanseiDriftSteeringListener extends BaseEveryFrameCombatPlugin {
                 }
             }
 
-            if (Objects.equals(event.getEventValue(), this.rightKey)) {
+            if (event.getEventValue() == this.rightKey) {
                 if (event.isKeyDownEvent()) {
                     for (KanseiDrift kanseiDrift : kanseiDrifts) {
                         kanseiDrift.setIsSteeringRight(true);
