@@ -15,13 +15,10 @@ class KanseiDriftSteeringListener extends BaseEveryFrameCombatPlugin {
 
     private Logger log = Global.getLogger(KanseiDriftSteeringListener.class);
 
-    private boolean leftDown = false;
-    private boolean rightDown = false;
-
     private Integer leftKey;
     private Integer rightKey;
 
-    private List<KanseiDrift> kanseiDrifts = new ArrayList<KanseiDrift>();
+    private final List<KanseiDrift> kanseiDrifts = new ArrayList<KanseiDrift>();
 
     public List<KanseiDrift> getKanseiDrifts() {
         return kanseiDrifts;
