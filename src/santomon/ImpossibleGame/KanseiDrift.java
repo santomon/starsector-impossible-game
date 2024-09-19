@@ -10,7 +10,6 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class KanseiDrift extends BaseShipSystemScript {
 
@@ -19,9 +18,12 @@ public class KanseiDrift extends BaseShipSystemScript {
     static final float MAX_ACCELERATION = 900f;
     static final float MAX_DECELERATION = 300f;
 
-    static final float STAGE_2_VELOCITY_TURNING_SPEED = 45f;
+    static final float STAGE_2_FLAT_STEERING_ANGLE = 5f;
+    static final float STAGE_2_VELOCITY_BASE_TURNING_SPEED = 30f;
+    private static final float STAGE_2_INITIAL_VELOCITY_OFFSET = 60;
     static final float STAGE_2_ANGULAR_VELOCITY_PROPORTIONALITY_CONSTANT = 6f;
     static final float STAGE_2_MAXIMUM_ANGULAR_VELOCITY = 90f;
+
 
     static final float STAGE_3_NORMAL_SPEED_FACTOR = 1f;  // automatic deceleration target speed (factor * ship's max speed);
 
@@ -37,6 +39,7 @@ public class KanseiDrift extends BaseShipSystemScript {
     Vector2f initialShipLocation;
     Vector2f initialCameraCenter;
     float stage2AngularVelocity;
+    private boolean hasNotCalledPhase2InThisCycleYet = true;
     boolean stage2ReachedTargetAngleOnce = false;
     boolean stage3ReachedTargetSpeedOnce = false;
 
@@ -62,6 +65,7 @@ public class KanseiDrift extends BaseShipSystemScript {
     public boolean isSteeringLeft() {
         return _isSteeringLeft;
     }
+
     public boolean isSteeringRight() {
         return _isSteeringRight;
     }
@@ -75,7 +79,6 @@ public class KanseiDrift extends BaseShipSystemScript {
         {
             // need to add a plugin to know if the user is steering anywhere
         }
-
 
 
         ShipAPI ship = (ShipAPI) stats.getEntity();
@@ -94,6 +97,7 @@ public class KanseiDrift extends BaseShipSystemScript {
             this.initialCursorLocation = getCursorLocation();
             this.initialShipLocation = new Vector2f().set(ship.getLocation());
             this.initialCursorIsLeft = isCursorLeftOfShip(ship);
+            this.hasNotCalledPhase2InThisCycleYet = true;
             this.stage2ReachedTargetAngleOnce = false;
             this.stage3ReachedTargetSpeedOnce = false;
 
@@ -109,13 +113,6 @@ public class KanseiDrift extends BaseShipSystemScript {
         // lock on for the duration of the drift
 
         if (state == State.IN) {
-//            boolean right = ship.getVariant().getHullMods().contains(StarboardAssault.tag);
-//            if (!right) {
-//                if (!ship.getVariant().getHullMods().contains(PortAssault.tag)) {
-//                    return;
-//                }
-//            }
-//
             kanseiDriftPhase1(ship, timePassed, effectLevel);
         }
         ;
@@ -134,7 +131,7 @@ public class KanseiDrift extends BaseShipSystemScript {
 
     }
 
-    private void kanseiDriftPhase1(ShipAPI ship, float timePassed, float effectLevel ) {
+    private void kanseiDriftPhase1(ShipAPI ship, float timePassed, float effectLevel) {
 //        if (Objects.equals(ship, Global.getCombatEngine().getPlayerShip())){
 //            // smoothly taking over control of the camera
 //            ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
@@ -166,7 +163,7 @@ public class KanseiDrift extends BaseShipSystemScript {
         // Rotate ship to face away from the initial cursor position
         // maybe its better if we dont care about the actual cursor position, but only whether the cursor is left or right of us
         float acceleratingOrDecelerating = effectLevel < 0.5 ? 1 : -1;
-        float dAngle = - direction * timePassed * acceleratingOrDecelerating * ANGULAR_ACCELERATION;
+        float dAngle = -direction * timePassed * acceleratingOrDecelerating * ANGULAR_ACCELERATION;
         ship.setAngularVelocity(ship.getAngularVelocity() + dAngle);
 
     }
@@ -205,10 +202,24 @@ public class KanseiDrift extends BaseShipSystemScript {
         {
             // first, update velocity direction
             // for now, maintain velocity, regardless of distance to cursor or any other factors;
-            Vector2f toInitialCursor = Vector2f.sub(this.initialCursorLocation, ship.getLocation(), null);
-            float angleToCover = KanseiDrift.angleBetween(ship.getVelocity(), toInitialCursor, false);
-            float signum = angleToCover > 0 ? 1 : -1;
-            float rotationAngleSize = Math.min(Math.abs(angleToCover * timePassed), STAGE_2_VELOCITY_TURNING_SPEED * timePassed);
+            if (this.hasNotCalledPhase2InThisCycleYet) {
+                this.hasNotCalledPhase2InThisCycleYet = false;
+                float direction = this.initialCursorIsLeft ? 1 : -1;
+                ship.getVelocity().set(
+                        KanseiDrift.rotate(ship.getVelocity(), -direction * STAGE_2_INITIAL_VELOCITY_OFFSET)
+                );
+            }
+
+
+            float angleToCover = STAGE_2_VELOCITY_BASE_TURNING_SPEED;
+            float signum = this.initialCursorIsLeft ? 1 : -1;
+            if (this.isSteeringLeft()) {
+                angleToCover += STAGE_2_FLAT_STEERING_ANGLE;
+            }
+            if (this.isSteeringRight()) {
+                angleToCover -= STAGE_2_FLAT_STEERING_ANGLE;
+            }
+            float rotationAngleSize = timePassed * angleToCover;
             Vector2f newVelocityVector = KanseiDrift.rotate(ship.getVelocity(), rotationAngleSize * signum);
             ship.getVelocity().set(newVelocityVector);
         }
@@ -225,7 +236,7 @@ public class KanseiDrift extends BaseShipSystemScript {
 
             float newAngularVelocity = STAGE_2_ANGULAR_VELOCITY_PROPORTIONALITY_CONSTANT * (targetFacing - ship.getFacing());
 //            float newAngularVelocity = ship.getAngularVelocity() + acceleration * timePassed;
-            newAngularVelocity = (float) Math.max(- STAGE_2_MAXIMUM_ANGULAR_VELOCITY, Math.min(newAngularVelocity, STAGE_2_MAXIMUM_ANGULAR_VELOCITY));
+            newAngularVelocity = (float) Math.max(-STAGE_2_MAXIMUM_ANGULAR_VELOCITY, Math.min(newAngularVelocity, STAGE_2_MAXIMUM_ANGULAR_VELOCITY));
 //            log.info("newAngularVelocity: " + newAngularVelocity);
             ship.setAngularVelocity(newAngularVelocity);
             this.stage2AngularVelocity = newAngularVelocity;
@@ -235,7 +246,7 @@ public class KanseiDrift extends BaseShipSystemScript {
     }
 
 
-    private void kanseiDriftPhase3(ShipAPI ship, float timePassed, float effectLevel){
+    private void kanseiDriftPhase3(ShipAPI ship, float timePassed, float effectLevel) {
 
         // think angular velocity should probably be automatically decelerating
         // for now let's use effectLevel to determine the angular velocity
