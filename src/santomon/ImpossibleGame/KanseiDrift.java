@@ -202,12 +202,11 @@ public class KanseiDrift extends BaseShipSystemScript {
 //            Global.getCombatEngine().getViewport().setCenter(ship.getLocation());
 //        }
 
-        Vector2f cursorLocation = getCursorLocation();
-        Vector2f toCursor = Vector2f.sub(cursorLocation, ship.getLocation(), null);
         {
             // first, update velocity direction
             // for now, maintain velocity, regardless of distance to cursor or any other factors;
-            float angleToCover = KanseiDrift.angleBetween(ship.getVelocity(), toCursor, false);
+            Vector2f toInitialCursor = Vector2f.sub(this.initialCursorLocation, ship.getLocation(), null);
+            float angleToCover = KanseiDrift.angleBetween(ship.getVelocity(), toInitialCursor, false);
             float signum = angleToCover > 0 ? 1 : -1;
             float rotationAngleSize = Math.min(Math.abs(angleToCover * timePassed), STAGE_2_VELOCITY_TURNING_SPEED * timePassed);
             Vector2f newVelocityVector = KanseiDrift.rotate(ship.getVelocity(), rotationAngleSize * signum);
@@ -217,8 +216,10 @@ public class KanseiDrift extends BaseShipSystemScript {
 
         {
             // update angular velocity..
+            Vector2f currentCursorLocation = getCursorLocation();
+            Vector2f toCurrentCursor = Vector2f.sub(currentCursorLocation, ship.getLocation(), null);
             float direction = initialCursorIsLeft ? 1 : -1;
-            float targetFacing = as0to360Angle(toCursor) + direction * 90f;
+            float targetFacing = as0to360Angle(toCurrentCursor) + direction * 90f;
             targetFacing = targetFacing < 0 ? targetFacing + 360f : targetFacing;
             targetFacing = targetFacing % 360;
 
