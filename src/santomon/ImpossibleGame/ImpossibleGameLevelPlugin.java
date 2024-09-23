@@ -116,6 +116,9 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     }
 
     public void fakeInit(CombatEngineAPI engine) {
+        engine.getFleetManager(0).setSuppressDeploymentMessages(true);
+        engine.getFleetManager(1).setSuppressDeploymentMessages(true);
+
         this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.colorData, objectLookUpTable);
         this.safeSpot = new Vector2f(
                 engine.getMapWidth() / 2 - 500,
