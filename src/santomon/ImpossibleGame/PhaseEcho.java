@@ -207,6 +207,7 @@ class AfterImageEffect implements AdvanceableListener {
         timeSinceLastAfterImageSpawned += amount;
         if (!this.active) return;
         if (this.ship == null) return;
+        log.info("ship location: " + ship.getLocation());
 
         timestampedDataList.add(new TimestampedData(timeElapsedSinceInstantiation, new Vector2f().set(ship.getLocation()), ship.getFacing(), afterImageDuration));
 
@@ -262,7 +263,8 @@ class AfterImageEffect implements AdvanceableListener {
             String spriteName = ship.getHullSpec().getSpriteName();
             SpriteAPI spriteAPI = Global.getSettings().getSprite(spriteName);  // hopefully this creates a fresh object
             spriteAPI.setAngle(timestampedData.facing - 90f);
-            spriteAPI.renderAtCenter(timestampedData.location.x, timestampedData.location.y);
+            spriteAPI.renderAtCenter(0, 0);
+//            spriteAPI.renderAtCenter(timestampedData.location.x, timestampedData.location.y);
         }
 
     }
