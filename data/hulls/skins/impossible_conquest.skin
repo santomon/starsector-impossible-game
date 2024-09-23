@@ -8,7 +8,7 @@
 	"tags":[],
 	"tech":"Impossible",
 	"fleetPoints":35,
-	"systemId":"impossible_kansei_drift",
+	"systemId":"impossible_phase_echo",
 	"ordnancePoints":240,
 	"baseValueMult":1.1,
 	"spriteName":"graphics/ships/conquest/conquest.png",
