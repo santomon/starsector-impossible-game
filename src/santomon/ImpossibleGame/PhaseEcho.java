@@ -102,6 +102,11 @@ public class PhaseEcho  extends BaseShipSystemScript {
     }
 
     public void unapply(MutableShipStatsAPI stats, String id) {
+        ShipAPI ship = (ShipAPI) stats.getEntity();
+        if (ship == null) return;
+
+        ship.setPhased(false);
+
         stats.getMaxSpeed().unmodify(id);
         stats.getMaxTurnRate().unmodify(id);
         stats.getTurnAcceleration().unmodify(id);
