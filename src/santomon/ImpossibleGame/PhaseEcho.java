@@ -77,16 +77,22 @@ public class PhaseEcho  extends BaseShipSystemScript {
 
 
         memberAPI.setOwner(ship.getOwner());
-        combatEngineAPI.getFleetManager(ship.getOwner()).setSuppressDeploymentMessages(true);
-        ShipAPI anchor = combatEngineAPI.getFleetManager(ship.getOwner()).spawnFleetMember(memberAPI,
+        CombatFleetManagerAPI combatFleetManagerAPI = combatEngineAPI.getFleetManager(ship.getOwner());
+        combatFleetManagerAPI.setSuppressDeploymentMessages(true);
+        ShipAPI anchor = combatFleetManagerAPI.spawnFleetMember(memberAPI,
                 ship.getLocation(),
                 ship.getFacing(),
                 0f
                 );
-        combatEngineAPI.getFleetManager(ship.getOwner()).setSuppressDeploymentMessages(false);
+        combatFleetManagerAPI.setSuppressDeploymentMessages(false);
+
+        combatFleetManagerAPI.removeDeployed(anchor, true);
+        combatEngineAPI.addEntity(anchor);
 
         anchor.makeLookDisabled();
         anchor.setPhased(true);
+
+
 
         this.anchorMarker = anchor;
 
