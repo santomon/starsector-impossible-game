@@ -18,7 +18,13 @@ public class PhaseEcho  extends BaseShipSystemScript {
 
 
     private ShipAPI anchorMarker;
+    private Float anchorAngularVelocity;
+    private Vector2f anchorVelocity = new Vector2f();
     private AfterImageEffect afterImageEffect;
+
+
+    private Vector2f shipLocationBeforeEcho = new Vector2f();
+    private Float shipFacingBeforeEcho;
 
     private String id;
     private static final float MANEUVERABILITY_BOOST = 0.5f;
@@ -48,6 +54,9 @@ public class PhaseEcho  extends BaseShipSystemScript {
             stats.getTurnAcceleration().modifyPercent(id, 200f * effectLevel);
             stats.getMaxTurnRate().modifyFlat(id, 15f);
             stats.getMaxTurnRate().modifyPercent(id, 100f);
+
+            this.shipLocationBeforeEcho.set(ship.getLocation());
+            this.shipFacingBeforeEcho = ship.getFacing();
         }
 
 
@@ -63,11 +72,11 @@ public class PhaseEcho  extends BaseShipSystemScript {
             ship.setPhased(true);
             ship.getVelocity().set(0, 0);  // should we set to 0?
             ship.getLocation().set(
-                    ship.getLocation().x * effectLevel + anchorMarker.getLocation().x * (1 - effectLevel),
-                    ship.getLocation().y * effectLevel + anchorMarker.getLocation().y * (1 - effectLevel)
+                    this.shipLocationBeforeEcho.x * effectLevel + anchorMarker.getLocation().x * (1 - effectLevel),
+                    this.shipLocationBeforeEcho.y * effectLevel + anchorMarker.getLocation().y * (1 - effectLevel)
             );
 
-            ship.setFacing(ship.getFacing() * effectLevel + anchorMarker.getFacing() * ( 1- effectLevel));
+            ship.setFacing(this.shipFacingBeforeEcho * effectLevel + anchorMarker.getFacing() * ( 1- effectLevel));
 
         }
 
@@ -123,6 +132,8 @@ public class PhaseEcho  extends BaseShipSystemScript {
 
 
         this.anchorMarker = anchor;
+        this.anchorAngularVelocity = ship.getAngularVelocity();
+        this.anchorVelocity = this.anchorVelocity.set(ship.getVelocity());
 
     }
 
@@ -154,12 +165,19 @@ public class PhaseEcho  extends BaseShipSystemScript {
         stats.getTurnAcceleration().unmodify(id);
         stats.getAcceleration().unmodify(id);
 
+        ship.getVelocity().set(this.anchorVelocity);
+
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
         if (this.anchorMarker != null) {
             combatEngineAPI.removeEntity(this.anchorMarker);
             this.anchorMarker = null;
         }
 
+        if (this.anchorAngularVelocity != null) {
+            ship.setAngularVelocity(this.anchorAngularVelocity);
+            this.anchorAngularVelocity = null;
+        }
+        ship.getVelocity().set(this.anchorVelocity);
     }
 
 
@@ -258,12 +276,15 @@ class AfterImageEffect implements AdvanceableListener {
 
         for (TimestampedData timestampedData : this.toRender) {
             log.info("are we even rendering shit?");
+            float spriteFacing = timestampedData.facing - 90f;
 
             timestampedData.remainingLifeTime -= amount;
-            String spriteName = ship.getHullSpec().getSpriteName();
-            SpriteAPI spriteAPI = Global.getSettings().getSprite(spriteName);  // hopefully this creates a fresh object
-            spriteAPI.setAngle(timestampedData.facing - 90f);
-            spriteAPI.renderAtCenter(0, 0);
+//            String spriteName = ship.getHullSpec().getSpriteName();
+            SpriteAPI spriteAPI = ship.getSpriteAPI();  // hopefully this creates a fresh object
+            spriteAPI.setAngle(spriteFacing);
+            spriteAPI.setNormalBlend();
+            spriteAPI.setSize(100, 100);
+            spriteAPI.renderAtCenter(timestampedData.location.x, timestampedData.location.y);
 //            spriteAPI.renderAtCenter(timestampedData.location.x, timestampedData.location.y);
         }
 

@@ -21,8 +21,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_conquest_Standard", FleetMemberType.SHIP, "xdd PlayerShip", true);
 		FleetMemberAPI enemy = api.addToFleet(FleetSide.ENEMY, "onslaught_Standard", FleetMemberType.SHIP, "xdd PlayerShip", true);
 
-		float width = 10000f;
-		float height = 10000f;
+		float width = 4000f;
+		float height = 4000f;
 		api.initMap(-width/2f, width/2f, -height/2f, height/2f);
 
 		api.addPlugin(new RewardPlugin());
