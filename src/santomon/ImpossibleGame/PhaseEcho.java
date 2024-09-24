@@ -8,9 +8,13 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
+import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.combat.entities.Ship;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +25,7 @@ public class PhaseEcho  extends BaseShipSystemScript {
     private Float anchorAngularVelocity;
     private Vector2f anchorVelocity = new Vector2f();
     private AfterImageEffect afterImageEffect;
+    private TroubleshootingRender troubleshootingRender;
 
 
     private Vector2f shipLocationBeforeEcho = new Vector2f();
@@ -62,6 +67,10 @@ public class PhaseEcho  extends BaseShipSystemScript {
 
         if (state == State.OUT) {
             if (!hasCreatedAfterImageEffect()) createAfterImageEffect(ship);
+            if (this.troubleshootingRender == null) {
+                this.troubleshootingRender = new TroubleshootingRender(ship);
+                Global.getCombatEngine().addPlugin(troubleshootingRender);
+            }
             this.afterImageEffect.setActive(true);
             // copied from maneuvering jets
             stats.getMaxSpeed().unmodify(id); // to slow down ship to its regular top speed while powering drive down
@@ -185,8 +194,53 @@ public class PhaseEcho  extends BaseShipSystemScript {
 }
 
 
+class TroubleshootingRender extends BaseEveryFrameCombatPlugin {
+
+
+    ShipAPI ship;
+    SpriteAPI spriteAPI;
+
+    private Logger log = Global.getLogger(TroubleshootingRender.class);
+
+    TroubleshootingRender(ShipAPI ship) {
+        this.ship = ship;
+        this.spriteAPI = ship.getSpriteAPI();
+        log.info("instantiated a troubleshooting render");
+    }
+
+    @Override
+    public void init(CombatEngineAPI engine) {
+        super.init(engine);
+    }
+
+    @Override
+    public void advance(float amount, List<InputEventAPI> events) {
+        super.advance(amount, events);
+    }
+
+    @Override
+    public void renderInWorldCoords(ViewportAPI viewport) {
+        super.renderInWorldCoords(viewport);
+        log.info("rendering in world coords");
+        if (ship == null) return;
+
+
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+        ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
+        float spriteFacing = this.ship.getFacing() - 90f;
+
+        this.spriteAPI.setAngle(spriteFacing);
+        this.spriteAPI.setNormalBlend();
+        this.spriteAPI.setSize(1000, 1000);
+        this.spriteAPI.renderAtCenter(this.ship.getLocation().x + 100, this.ship.getLocation().y + 100);
+
+    }
+}
+
+
 class AfterImageEffect implements AdvanceableListener {
     private final ShipAPI ship;
+    private final SpriteAPI spriteAPI;
     private final Logger log = Global.getLogger(AfterImageEffect.class);
 
     private float timeSinceLastAfterImageSpawned = 0;
@@ -201,6 +255,13 @@ class AfterImageEffect implements AdvanceableListener {
 
     AfterImageEffect(ShipAPI ship, Float afterImageDuration, Float afterImageInterval) {
         this.ship = ship;
+        String spriteName = ship.getHullSpec().getSpriteName();
+        try {
+            Global.getSettings().loadTexture(spriteName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        this.spriteAPI = Global.getSettings().getSprite(spriteName);
         if (afterImageDuration != null) {
             this.afterImageDuration = afterImageDuration;
         }
@@ -276,15 +337,16 @@ class AfterImageEffect implements AdvanceableListener {
 
         for (TimestampedData timestampedData : this.toRender) {
             log.info("are we even rendering shit?");
+            CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+            ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
             float spriteFacing = timestampedData.facing - 90f;
 
             timestampedData.remainingLifeTime -= amount;
-//            String spriteName = ship.getHullSpec().getSpriteName();
-            SpriteAPI spriteAPI = ship.getSpriteAPI();  // hopefully this creates a fresh object
-            spriteAPI.setAngle(spriteFacing);
-            spriteAPI.setNormalBlend();
-            spriteAPI.setSize(100, 100);
-            spriteAPI.renderAtCenter(timestampedData.location.x, timestampedData.location.y);
+            this.spriteAPI.setAngle(spriteFacing);
+            this.spriteAPI.setNormalBlend();
+            this.spriteAPI.setSize(1000, 1000);
+            this.spriteAPI.setColor(new Color(255, 0, 0, 255));
+            this.spriteAPI.renderAtCenter(viewportAPI.convertWorldXtoScreenX(combatEngineAPI.getMapWidth() / 2), viewportAPI.convertWorldYtoScreenY(combatEngineAPI.getMapHeight() / 2));
 //            spriteAPI.renderAtCenter(timestampedData.location.x, timestampedData.location.y);
         }
 
