@@ -33,8 +33,8 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
         this.network = new Network(bounds);
         this.spriteAPI = ship.getSpriteAPI();
 
-        log.info("bounds");
-        for (BoundsAPI.SegmentAPI segment : bounds.getSegments()) {
+        log.info("orig segments");
+        for (BoundsAPI.SegmentAPI segment : bounds.getOrigSegments()) {
             log.info(segment.getP1() + " " + segment.getP2());
         }
 
@@ -83,7 +83,9 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
 
         SpriteAPI shipSprite = ship.getSpriteAPI();
         ship.getExactBounds().update(ship.getLocation(), ship.getFacing());  // wasted X hours or so, before we decided to check the doc for exactbounds...
-        Vector2f shipCenter = new Vector2f(ship.getLocation());
+        Vector2f shipCenter = new Vector2f(
+                0, 0
+        );
 
         for (Network.Edge edge : network.edges) {
 
@@ -94,10 +96,13 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
 
 
             Vector2f edgeDirection = Vector2f.sub(edge.end.location , edge.start.location, null);
-            float spriteAngle = (float) Math.toDegrees(Math.atan2(edgeDirection.y , edgeDirection.x)) - 90f;
+            float spriteAngle = ship.getFacing() + (float) Math.toDegrees(Math.atan2(edgeDirection.y , edgeDirection.x)) - 90f;
 
             Vector2f offset = Vector2f.sub(centerOfEdge, shipCenter, null);
-            Vector2f trueOffset = new Vector2f(offset);
+            Vector2f trueOffset = new Vector2f(
+             (float) (FastTrig.cos(Math.toRadians((ship.getFacing()))) * offset.x - FastTrig.sin(Math.toRadians((ship.getFacing()))) * offset.y),
+            (float) (FastTrig.sin(Math.toRadians((ship.getFacing()))) * offset.x + FastTrig.cos(Math.toRadians((ship.getFacing()))) * offset.y)
+            );
             Vector2f edgeCenterWorld = Vector2f.add(trueOffset, ship.getLocation(), null);
             float length = edgeDirection.length();
 
@@ -115,8 +120,8 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
         SpriteAPI sprite = ship.getSpriteAPI();
         float offsetX = sprite.getWidth() / 2 - sprite.getCenterX();
         float offsetY = sprite.getHeight() / 2 - sprite.getCenterY();
-        float trueOffsetX = (float) (FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offsetX - FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offsetY);
-        float trueOffsetY = (float) (FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offsetX + FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offsetY);
+        float trueOffsetX = (float) (FastTrig.cos(Math.toRadians((ship.getFacing()))) * offsetX - FastTrig.sin(Math.toRadians((ship.getFacing()))) * offsetY);
+        float trueOffsetY = (float) (FastTrig.sin(Math.toRadians((ship.getFacing()))) * offsetX + FastTrig.cos(Math.toRadians((ship.getFacing()))) * offsetY);
 
         Vector2f trueLocation = new Vector2f(ship.getLocation().x + trueOffsetX, ship.getLocation().y + trueOffsetY);
 
@@ -138,7 +143,8 @@ class Network {
 
     Network(BoundsAPI bounds) {
 
-        for (BoundsAPI.SegmentAPI segment : bounds.getSegments()) {
+        for (BoundsAPI.SegmentAPI segment : bounds.getOrigSegments()) {
+            // idk man, sometimes we subtract 90 deg sometimes we dont; it is what it is
             nodes.add(new Node(segment.getP1()));
         }
 
