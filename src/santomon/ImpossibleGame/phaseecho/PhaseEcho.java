@@ -1,42 +1,39 @@
-package santomon.ImpossibleGame;
+package santomon.ImpossibleGame.phaseecho;
 
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
-import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.combat.entities.Ship;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhaseEcho  extends BaseShipSystemScript {
+public class PhaseEcho extends BaseShipSystemScript {
 
 
     private ShipAPI anchorMarker;
     private Float anchorAngularVelocity;
     private Vector2f anchorVelocity = new Vector2f();
     private AfterImageEffect afterImageEffect;
-    private TroubleshootingRender troubleshootingRender;
+    private AnchorEffect anchorEffect;
 
 
-    private Vector2f shipLocationBeforeEcho = new Vector2f();
+    private final Vector2f shipLocationBeforeEcho = new Vector2f();
     private Float shipFacingBeforeEcho;
 
     private String id;
     private static final float MANEUVERABILITY_BOOST = 0.5f;
     private static final float TOP_SPEED_BOOST = 80F;  // 30 more than
 
-    private static final float AFTER_IMAGE_DURATION = 0.5f;
-    private static final float AFTER_IMAGE_INTERVAL = 0.2f;
+    private static final float AFTER_IMAGE_DURATION = .5f;
+    private static final float AFTER_IMAGE_INTERVAL = 0.5f;
 
 
     public void apply(MutableShipStatsAPI stats, String id, State state, float effectLevel) {
@@ -67,9 +64,9 @@ public class PhaseEcho  extends BaseShipSystemScript {
 
         if (state == State.OUT) {
             if (!hasCreatedAfterImageEffect()) createAfterImageEffect(ship);
-            if (this.troubleshootingRender == null) {
-                this.troubleshootingRender = new TroubleshootingRender(ship);
-                Global.getCombatEngine().addPlugin(troubleshootingRender);
+            if (this.anchorEffect == null) {
+                this.anchorEffect = new AnchorEffect(ship);
+                Global.getCombatEngine().addPlugin(anchorEffect);
             }
             this.afterImageEffect.setActive(true);
             // copied from maneuvering jets
@@ -85,13 +82,9 @@ public class PhaseEcho  extends BaseShipSystemScript {
                     this.shipLocationBeforeEcho.y * effectLevel + anchorMarker.getLocation().y * (1 - effectLevel)
             );
 
-            ship.setFacing(this.shipFacingBeforeEcho * effectLevel + anchorMarker.getFacing() * ( 1- effectLevel));
+            ship.setFacing(this.shipFacingBeforeEcho * effectLevel + anchorMarker.getFacing() * (1 - effectLevel));
 
         }
-
-
-
-
 
 
     }
@@ -103,11 +96,7 @@ public class PhaseEcho  extends BaseShipSystemScript {
                 AFTER_IMAGE_DURATION,
                 AFTER_IMAGE_INTERVAL
         );
-
-
-        if (!ship.hasListenerOfClass(AfterImageEffect.class)) {
-            ship.addListener(this.afterImageEffect);
-        }
+        Global.getCombatEngine().addPlugin(afterImageEffect);
     }
 
     private void createAnchorMarker(ShipAPI ship) {
@@ -129,7 +118,7 @@ public class PhaseEcho  extends BaseShipSystemScript {
                 ship.getLocation(),
                 ship.getFacing(),
                 0f
-                );
+        );
         combatFleetManagerAPI.setSuppressDeploymentMessages(false);
 
         combatFleetManagerAPI.removeDeployed(anchor, true);
@@ -137,7 +126,6 @@ public class PhaseEcho  extends BaseShipSystemScript {
 
         anchor.makeLookDisabled();
         anchor.setPhased(true);
-
 
 
         this.anchorMarker = anchor;
@@ -190,19 +178,18 @@ public class PhaseEcho  extends BaseShipSystemScript {
     }
 
 
-
 }
 
 
-class TroubleshootingRender extends BaseEveryFrameCombatPlugin {
+class AnchorEffect extends BaseEveryFrameCombatPlugin {
 
 
     ShipAPI ship;
     SpriteAPI spriteAPI;
 
-    private Logger log = Global.getLogger(TroubleshootingRender.class);
+    private Logger log = Global.getLogger(AnchorEffect.class);
 
-    TroubleshootingRender(ShipAPI ship) {
+    AnchorEffect(ShipAPI ship) {
         this.ship = ship;
         this.spriteAPI = ship.getSpriteAPI();
         log.info("instantiated a troubleshooting render");
@@ -221,26 +208,25 @@ class TroubleshootingRender extends BaseEveryFrameCombatPlugin {
     @Override
     public void renderInWorldCoords(ViewportAPI viewport) {
         super.renderInWorldCoords(viewport);
-        log.info("rendering in world coords");
-        if (ship == null) return;
-
-
-        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-        ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
-        float spriteFacing = this.ship.getFacing() - 90f;
-
-        this.spriteAPI.setAngle(spriteFacing);
-        this.spriteAPI.setNormalBlend();
-        this.spriteAPI.setSize(1000, 1000);
-        this.spriteAPI.renderAtCenter(this.ship.getLocation().x + 100, this.ship.getLocation().y + 100);
+//        log.info("rendering in world coords");
+//        if (ship == null) return;
+//
+//
+//        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+//        ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
+//        float spriteFacing = this.ship.getFacing() - 90f;
+//
+//        this.spriteAPI.setAngle(spriteFacing);
+//        this.spriteAPI.setNormalBlend();
+//        this.spriteAPI.setSize(1000, 1000);
+//        this.spriteAPI.renderAtCenter(this.ship.getLocation().x + 100, this.ship.getLocation().y + 100);
 
     }
 }
 
 
-class AfterImageEffect implements AdvanceableListener {
+class AfterImageEffect extends BaseEveryFrameCombatPlugin {
     private final ShipAPI ship;
-    private final SpriteAPI spriteAPI;
     private final Logger log = Global.getLogger(AfterImageEffect.class);
 
     private float timeSinceLastAfterImageSpawned = 0;
@@ -251,7 +237,7 @@ class AfterImageEffect implements AdvanceableListener {
     private boolean active = false;
 
     private List<TimestampedData> timestampedDataList = new ArrayList<>();
-    private List<TimestampedData> toRender = new ArrayList<>();
+    private List<SpriteData> toRender = new ArrayList<>();
 
     AfterImageEffect(ShipAPI ship, Float afterImageDuration, Float afterImageInterval) {
         this.ship = ship;
@@ -261,7 +247,6 @@ class AfterImageEffect implements AdvanceableListener {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this.spriteAPI = Global.getSettings().getSprite(spriteName);
         if (afterImageDuration != null) {
             this.afterImageDuration = afterImageDuration;
         }
@@ -280,16 +265,18 @@ class AfterImageEffect implements AdvanceableListener {
     }
 
     @Override
-    public void advance(float amount) {
+    public void advance(float amount, List<InputEventAPI> events) {
+        super.advance(amount, events);
+
         // not sure how this after image thing behaves with time acceleration?
         timeElapsedSinceInstantiation += amount;
         timeSinceLastAfterImageSpawned += amount;
         if (!this.active) return;
         if (this.ship == null) return;
-        log.info("ship location: " + ship.getLocation());
 
-        timestampedDataList.add(new TimestampedData(timeElapsedSinceInstantiation, new Vector2f().set(ship.getLocation()), ship.getFacing(), afterImageDuration));
-
+        Vector2f location = new Vector2f();
+        location.set(ship.getLocation().x, ship.getLocation().y);
+        timestampedDataList.add(new TimestampedData(timeElapsedSinceInstantiation, location, ship.getFacing(), afterImageDuration));
 
 
         if (timeSinceLastAfterImageSpawned > afterImageInterval) {
@@ -297,16 +284,18 @@ class AfterImageEffect implements AdvanceableListener {
             addToRender();
             pruneTimestampedData();
         }
-
-        maybeRender(amount);
         pruneToRender();
     }
 
+    private void adjustRenderLifetime(float amount) {
+
+    }
+
     private void pruneToRender() {
-        List<TimestampedData> prunedToRender = new ArrayList<>();
-        for (TimestampedData toRenderElement : this.toRender) {
-            if (toRenderElement.remainingLifeTime > 0) {
-                prunedToRender.add(toRenderElement);
+        List<SpriteData> prunedToRender = new ArrayList<>();
+        for ( SpriteData spriteDataElement : this.toRender) {
+            if (spriteDataElement.remainingLifeTime > 0) {
+                prunedToRender.add(spriteDataElement);
             }
         }
         this.toRender = prunedToRender;
@@ -314,9 +303,14 @@ class AfterImageEffect implements AdvanceableListener {
 
 
     private void addToRender() {
-        for (TimestampedData timestampedDataElement: this.timestampedDataList) {
+        for (TimestampedData timestampedDataElement : this.timestampedDataList) {
             if (this.timeElapsedSinceInstantiation - timestampedDataElement.timestamp < afterImageInterval) {
-                this.toRender.add(timestampedDataElement);
+                log.info(this.toRender);
+
+                SpriteAPI sprite = Global.getSettings().getSprite(this.ship.getHullSpec().getSpriteName());
+                Vector2f location = ship.getLocation();
+                sprite.setAngle(ship.getFacing() - 90f);
+                this.toRender.add(new SpriteData(sprite, location, afterImageDuration));
                 break;
             }
         }
@@ -333,21 +327,14 @@ class AfterImageEffect implements AdvanceableListener {
 
     }
 
-    private void maybeRender(float amount) {
+    @Override
+    public void renderInWorldCoords(ViewportAPI viewport) {
+        super.renderInWorldCoords(viewport);
 
-        for (TimestampedData timestampedData : this.toRender) {
-            log.info("are we even rendering shit?");
-            CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-            ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
-            float spriteFacing = timestampedData.facing - 90f;
-
-            timestampedData.remainingLifeTime -= amount;
-            this.spriteAPI.setAngle(spriteFacing);
-            this.spriteAPI.setNormalBlend();
-            this.spriteAPI.setSize(1000, 1000);
-            this.spriteAPI.setColor(new Color(255, 0, 0, 255));
-            this.spriteAPI.renderAtCenter(viewportAPI.convertWorldXtoScreenX(combatEngineAPI.getMapWidth() / 2), viewportAPI.convertWorldYtoScreenY(combatEngineAPI.getMapHeight() / 2));
-//            spriteAPI.renderAtCenter(timestampedData.location.x, timestampedData.location.y);
+        for (SpriteData spriteData : this.toRender) {
+            spriteData.remainingLifeTime -= Global.getCombatEngine().getTotalElapsedTime(false);
+            log.info("rendering: " + spriteData + " " + spriteData.location);
+            spriteData.spriteAPI.renderAtCenter(spriteData.location.x, spriteData.location.y);
         }
 
     }
@@ -356,15 +343,30 @@ class AfterImageEffect implements AdvanceableListener {
 
 class TimestampedData {
 
-        public final Vector2f location;
-        public final float facing;
-        public final float timestamp;
-        public float remainingLifeTime;
+    public final Vector2f location;
+    public final float facing;
+    public final float timestamp;
+    public float remainingLifeTime;
 
-        TimestampedData(float timestamp, Vector2f location, float facing, float lifeTime) {
-            this.facing = facing;
-            this.timestamp = timestamp;
-            this.location = location;
-            this.remainingLifeTime = lifeTime;
-        }
-        }
+    TimestampedData(float timestamp, Vector2f location, float facing, float lifeTime) {
+        this.facing = facing;
+        this.timestamp = timestamp;
+        this.location = location;
+        this.remainingLifeTime = lifeTime;
+    }
+}
+
+
+class SpriteData {
+
+    public final SpriteAPI spriteAPI;
+    public final Vector2f location;
+    public float remainingLifeTime;
+
+    SpriteData(SpriteAPI spriteAPI, Vector2f location,  float lifeTime) {
+        this.spriteAPI = spriteAPI;
+        this.remainingLifeTime = lifeTime;
+        this.location = location;
+    }
+
+}
