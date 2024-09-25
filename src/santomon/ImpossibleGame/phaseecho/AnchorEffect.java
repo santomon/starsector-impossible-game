@@ -24,7 +24,7 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
     Vector2f anchorLocation;
 
 
-    private Logger log = Global.getLogger(AnchorEffect.class);
+    private static final Logger log = Global.getLogger(AnchorEffect.class);
 
     AnchorEffect(ShipAPI ship) {
         // so segments are basically the lines defined by two points.
@@ -76,18 +76,20 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
         super.renderInWorldCoords(viewport);
         if (!this.active) return;
 
-        log.info("rendering anchor location: " + this.anchorLocation);
         renderSkeletonInWorldCoords(this.anchorLocation, this.network, this.spriteName, this.ship);
     }
 
     public static void renderSkeletonInWorldCoords(Vector2f anchorLocation, Network network, String spriteName, ShipAPI ship) {
 
-        Vector2f shipCenter = new Vector2f(0, 0);  // i hope the bounds have been repositioned, around ship center being 0, 0...
+        SpriteAPI shipSprite = ship.getSpriteAPI();
+        ship.getExactBounds().update(ship.getLocation(), ship.getFacing());  // wasted X hours or so, before we decided to check the doc for exactbounds...
+        Vector2f shipCenter = new Vector2f(ship.getLocation());
+
         for (Network.Edge edge : network.edges) {
 
             Vector2f centerOfEdge = new Vector2f(
-                    edge.start.location.x + edge.end.location.x * 0.5f,
-                    edge.start.location.y + edge.end.location.y * 0.5f
+                    edge.start.location.x * 0.5f + edge.end.location.x * 0.5f,
+                    edge.start.location.y * 0.5f + edge.end.location.y * 0.5f
             );
 
 
@@ -95,16 +97,13 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
             float spriteAngle = (float) Math.toDegrees(Math.atan2(edgeDirection.y , edgeDirection.x)) - 90f;
 
             Vector2f offset = Vector2f.sub(centerOfEdge, shipCenter, null);
-            Vector2f trueOffset = new Vector2f(
-            (float) (FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offset.x - FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offset.y),
-            (float) (FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offset.x + FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offset.y)
-            );
+            Vector2f trueOffset = new Vector2f(offset);
             Vector2f edgeCenterWorld = Vector2f.add(trueOffset, ship.getLocation(), null);
             float length = edgeDirection.length();
 
 
             SpriteAPI lineSprite = Global.getSettings().getSprite(spriteName);
-            lineSprite.setAngle(ship.getFacing() -90f + spriteAngle);  //
+            lineSprite.setAngle(spriteAngle);
             lineSprite.setSize(LINE_THICKNESS, length);
             lineSprite.renderAtCenter(edgeCenterWorld.x, edgeCenterWorld.y);
         }
@@ -152,30 +151,31 @@ class Network {
         edges.add(new Edge(nodes.get(nodes.size() - 1), nodes.get(0), BOUND_WEIGHT));
 
 
-        List<Edge> newEdgesToAdd = new ArrayList<>();
-
-        for (Node node1: nodes) {
-            for (Node node2: nodes) {
-                if (node1 == node2) continue;
-
-                if (Helpers.arePointsOnSameGridLine(node1.location, node2.location)) {
-
-                    boolean atLeast1Intersection = false;
-                    for (Edge edge : edges) {
-                        Vector2f intersection = Helpers.getIntersection(node1.location, node2.location, edge.start.location, edge.end.location);
-                        if (intersection != null) {
-                            atLeast1Intersection = true;
-                            break;
-                        }
-                    }
-
-                    if (!atLeast1Intersection) continue;
-                    newEdgesToAdd.add(new Edge(node1, node2, INNER_WEIGHT));
-                }
-            }
-        }
-
-        edges.addAll(newEdgesToAdd);
+//        {
+//            // adding inner edges
+//            List<Edge> newEdgesToAdd = new ArrayList<>();
+//            for (Node node1: nodes) {
+//                for (Node node2: nodes) {
+//                    if (node1 == node2) continue;
+//
+//                    if (Helpers.arePointsOnSameGridLine(node1.location, node2.location)) {
+//
+//                        boolean atLeast1Intersection = false;
+//                        for (Edge edge : edges) {
+//                            Vector2f intersection = Helpers.getIntersection(node1.location, node2.location, edge.start.location, edge.end.location);
+//                            if (intersection != null) {
+//                                atLeast1Intersection = true;
+//                                break;
+//                            }
+//                        }
+//
+//                        if (!atLeast1Intersection) continue;
+//                        newEdgesToAdd.add(new Edge(node1, node2, INNER_WEIGHT));
+//                    }
+//                }
+//            }
+//            edges.addAll(newEdgesToAdd);
+//        }
 
 
     }
