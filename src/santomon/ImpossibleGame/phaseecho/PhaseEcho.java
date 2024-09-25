@@ -49,6 +49,13 @@ public class PhaseEcho extends BaseShipSystemScript {
 
         if (state == State.IN || state == State.ACTIVE) {
             // copied from maneuvering jets
+            if (this.anchorEffect == null) {
+                this.anchorEffect = new AnchorEffect(ship);
+                Global.getCombatEngine().addPlugin(anchorEffect);
+            }
+            this.anchorEffect.setActive(true);
+
+
             stats.getMaxSpeed().modifyFlat(id, TOP_SPEED_BOOST);
             stats.getAcceleration().modifyPercent(id, 200f * effectLevel);
             stats.getDeceleration().modifyPercent(id, 200f * effectLevel);
@@ -63,12 +70,8 @@ public class PhaseEcho extends BaseShipSystemScript {
 
 
         if (state == State.OUT) {
-            if (!hasCreatedAfterImageEffect()) createAfterImageEffect(ship);
-            if (this.anchorEffect == null) {
-                this.anchorEffect = new AnchorEffect(ship);
-                Global.getCombatEngine().addPlugin(anchorEffect);
-            }
-            this.afterImageEffect.setActive(true);
+//            if (!hasCreatedAfterImageEffect()) createAfterImageEffect(ship);
+//            this.afterImageEffect.setActive(true);
             // copied from maneuvering jets
             stats.getMaxSpeed().unmodify(id); // to slow down ship to its regular top speed while powering drive down
             stats.getMaxTurnRate().unmodify(id);
@@ -77,12 +80,12 @@ public class PhaseEcho extends BaseShipSystemScript {
             // could also do linear 🤔
             ship.setPhased(true);
             ship.getVelocity().set(0, 0);  // should we set to 0?
-            ship.getLocation().set(
-                    this.shipLocationBeforeEcho.x * effectLevel + anchorMarker.getLocation().x * (1 - effectLevel),
-                    this.shipLocationBeforeEcho.y * effectLevel + anchorMarker.getLocation().y * (1 - effectLevel)
-            );
-
-            ship.setFacing(this.shipFacingBeforeEcho * effectLevel + anchorMarker.getFacing() * (1 - effectLevel));
+//            ship.getLocation().set(
+//                    this.shipLocationBeforeEcho.x * effectLevel + anchorMarker.getLocation().x * (1 - effectLevel),
+//                    this.shipLocationBeforeEcho.y * effectLevel + anchorMarker.getLocation().y * (1 - effectLevel)
+//            );
+//
+//            ship.setFacing(this.shipFacingBeforeEcho * effectLevel + anchorMarker.getFacing() * (1 - effectLevel));
 
         }
 
@@ -100,35 +103,35 @@ public class PhaseEcho extends BaseShipSystemScript {
     }
 
     private void createAnchorMarker(ShipAPI ship) {
-        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-        ShipVariantAPI anchorVariant = ship.getVariant().clone();
-        ShipHullSpecAPI shipHullSpecAPI = Global.getSettings().getHullSpec(ship.getHullSpec().getHullId());
-        anchorVariant.setHullSpecAPI(shipHullSpecAPI);
+//        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+//        ShipVariantAPI anchorVariant = ship.getVariant().clone();
+//        ShipHullSpecAPI shipHullSpecAPI = Global.getSettings().getHullSpec(ship.getHullSpec().getHullId());
+//        anchorVariant.setHullSpecAPI(shipHullSpecAPI);
+//
+//        FleetMemberAPI memberAPI = Global.getFactory().createFleetMember(
+//                FleetMemberType.SHIP,
+//                anchorVariant
+//        );
+//
+//
+//        memberAPI.setOwner(ship.getOwner());
+//        CombatFleetManagerAPI combatFleetManagerAPI = combatEngineAPI.getFleetManager(ship.getOwner());
+//        combatFleetManagerAPI.setSuppressDeploymentMessages(true);
+//        ShipAPI anchor = combatFleetManagerAPI.spawnFleetMember(memberAPI,
+//                ship.getLocation(),
+//                ship.getFacing(),
+//                0f
+//        );
+//        combatFleetManagerAPI.setSuppressDeploymentMessages(false);
+//
+//        combatFleetManagerAPI.removeDeployed(anchor, true);
+//        combatEngineAPI.addEntity(anchor);
+//
+//        anchor.makeLookDisabled();
+//        anchor.setPhased(true);
 
-        FleetMemberAPI memberAPI = Global.getFactory().createFleetMember(
-                FleetMemberType.SHIP,
-                anchorVariant
-        );
 
-
-        memberAPI.setOwner(ship.getOwner());
-        CombatFleetManagerAPI combatFleetManagerAPI = combatEngineAPI.getFleetManager(ship.getOwner());
-        combatFleetManagerAPI.setSuppressDeploymentMessages(true);
-        ShipAPI anchor = combatFleetManagerAPI.spawnFleetMember(memberAPI,
-                ship.getLocation(),
-                ship.getFacing(),
-                0f
-        );
-        combatFleetManagerAPI.setSuppressDeploymentMessages(false);
-
-        combatFleetManagerAPI.removeDeployed(anchor, true);
-        combatEngineAPI.addEntity(anchor);
-
-        anchor.makeLookDisabled();
-        anchor.setPhased(true);
-
-
-        this.anchorMarker = anchor;
+        this.anchorMarker = null;
         this.anchorAngularVelocity = ship.getAngularVelocity();
         this.anchorVelocity = this.anchorVelocity.set(ship.getVelocity());
 
@@ -155,6 +158,10 @@ public class PhaseEcho extends BaseShipSystemScript {
 
         if (this.afterImageEffect != null) {
             this.afterImageEffect.setActive(false);
+        }
+
+        if (this.anchorEffect != null) {
+            this.anchorEffect.setActive(false);
         }
 
         stats.getMaxSpeed().unmodify(id);

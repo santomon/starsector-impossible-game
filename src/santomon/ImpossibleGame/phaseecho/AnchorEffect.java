@@ -5,18 +5,24 @@ import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import org.apache.log4j.Logger;
+import org.lazywizard.lazylib.FastTrig;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 class AnchorEffect extends BaseEveryFrameCombatPlugin {
 
+    private static final float LINE_THICKNESS = 10f;
 
     ShipAPI ship;
     SpriteAPI spriteAPI;
     Network network;
-    String spriteName = "graphic/impossible_line.png";
+    String spriteName = "graphics/impossible_line.png";
+    boolean active = false;
+    Vector2f anchorLocation;
+
 
     private Logger log = Global.getLogger(AnchorEffect.class);
 
@@ -26,6 +32,33 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
         BoundsAPI bounds = this.ship.getExactBounds();
         this.network = new Network(bounds);
         this.spriteAPI = ship.getSpriteAPI();
+
+        log.info("bounds");
+        for (BoundsAPI.SegmentAPI segment : bounds.getSegments()) {
+            log.info(segment.getP1() + " " + segment.getP2());
+        }
+
+        log.info("fixed Location: " + ship.getFixedLocation());
+        log.info("module anchor: " + ship.getHullSpec().getModuleAnchor());
+
+    }
+
+    public void setActive(boolean active) {
+        if (!this.active && active) {
+            this.anchorLocation = new Vector2f(this.ship.getLocation().x, this.ship.getLocation().y);
+
+            try{
+                // for some reason texture sometimes randomly disappears 🤔, leaving this here for reloading for now
+                // maybe have to put into settings.json
+                Global.getSettings().loadTexture(spriteName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        this.active = active;
+    }
+    public boolean isActive() {
+        return this.active;
     }
 
     @Override
@@ -41,10 +74,15 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
     @Override
     public void renderInWorldCoords(ViewportAPI viewport) {
         super.renderInWorldCoords(viewport);
+        if (!this.active) return;
+
+        log.info("rendering anchor location: " + this.anchorLocation);
+        renderSkeletonInWorldCoords(this.anchorLocation, this.network, this.spriteName, this.ship);
     }
 
-    public static void renderSkeletonInWorldCoords(ShipAPI ship, Network network) {
+    public static void renderSkeletonInWorldCoords(Vector2f anchorLocation, Network network, String spriteName, ShipAPI ship) {
 
+        Vector2f shipCenter = new Vector2f(0, 0);  // i hope the bounds have been repositioned, around ship center being 0, 0...
         for (Network.Edge edge : network.edges) {
 
             Vector2f centerOfEdge = new Vector2f(
@@ -52,10 +90,38 @@ class AnchorEffect extends BaseEveryFrameCombatPlugin {
                     edge.start.location.y + edge.end.location.y * 0.5f
             );
 
-            Vector2f offset = Vector2f.sub(centerOfEdge, ship.getVariant().getHullSpec().getModuleAnchor(), null);
 
+            Vector2f edgeDirection = Vector2f.sub(edge.end.location , edge.start.location, null);
+            float spriteAngle = (float) Math.toDegrees(Math.atan2(edgeDirection.y , edgeDirection.x)) - 90f;
+
+            Vector2f offset = Vector2f.sub(centerOfEdge, shipCenter, null);
+            Vector2f trueOffset = new Vector2f(
+            (float) (FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offset.x - FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offset.y),
+            (float) (FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offset.x + FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offset.y)
+            );
+            Vector2f edgeCenterWorld = Vector2f.add(trueOffset, ship.getLocation(), null);
+            float length = edgeDirection.length();
+
+
+            SpriteAPI lineSprite = Global.getSettings().getSprite(spriteName);
+            lineSprite.setAngle(ship.getFacing() -90f + spriteAngle);  //
+            lineSprite.setSize(LINE_THICKNESS, length);
+            lineSprite.renderAtCenter(edgeCenterWorld.x, edgeCenterWorld.y);
         }
 
+    }
+
+    public static Vector2f getTrueLocationForSprite(ShipAPI ship) {
+
+        SpriteAPI sprite = ship.getSpriteAPI();
+        float offsetX = sprite.getWidth() / 2 - sprite.getCenterX();
+        float offsetY = sprite.getHeight() / 2 - sprite.getCenterY();
+        float trueOffsetX = (float) (FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offsetX - FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offsetY);
+        float trueOffsetY = (float) (FastTrig.sin(Math.toRadians((ship.getFacing() - 90f))) * offsetX + FastTrig.cos(Math.toRadians((ship.getFacing() - 90f))) * offsetY);
+
+        Vector2f trueLocation = new Vector2f(ship.getLocation().x + trueOffsetX, ship.getLocation().y + trueOffsetY);
+
+        return trueLocation;
     }
 }
 
@@ -77,10 +143,11 @@ class Network {
             nodes.add(new Node(segment.getP1()));
         }
 
-        for (Node node1 : nodes.subList(0, nodes.size() - 1)) {
-            for (Node node2 : nodes.subList(1, nodes.size())) {
-                edges.add(new Edge(node1, node2, BOUND_WEIGHT));
-            }
+        for (int i = 0; i < nodes.size() - 1; i++) {
+            Node node1 = nodes.get(i);
+            Node node2 = nodes.get(i + 1);
+            edges.add(new Edge(node1, node2, BOUND_WEIGHT));
+
         }
         edges.add(new Edge(nodes.get(nodes.size() - 1), nodes.get(0), BOUND_WEIGHT));
 
