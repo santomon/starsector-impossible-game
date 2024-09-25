@@ -181,50 +181,6 @@ public class PhaseEcho extends BaseShipSystemScript {
 }
 
 
-class AnchorEffect extends BaseEveryFrameCombatPlugin {
-
-
-    ShipAPI ship;
-    SpriteAPI spriteAPI;
-
-    private Logger log = Global.getLogger(AnchorEffect.class);
-
-    AnchorEffect(ShipAPI ship) {
-        this.ship = ship;
-        this.spriteAPI = ship.getSpriteAPI();
-        log.info("instantiated a troubleshooting render");
-    }
-
-    @Override
-    public void init(CombatEngineAPI engine) {
-        super.init(engine);
-    }
-
-    @Override
-    public void advance(float amount, List<InputEventAPI> events) {
-        super.advance(amount, events);
-    }
-
-    @Override
-    public void renderInWorldCoords(ViewportAPI viewport) {
-        super.renderInWorldCoords(viewport);
-//        log.info("rendering in world coords");
-//        if (ship == null) return;
-//
-//
-//        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
-//        ViewportAPI viewportAPI = Global.getCombatEngine().getViewport();
-//        float spriteFacing = this.ship.getFacing() - 90f;
-//
-//        this.spriteAPI.setAngle(spriteFacing);
-//        this.spriteAPI.setNormalBlend();
-//        this.spriteAPI.setSize(1000, 1000);
-//        this.spriteAPI.renderAtCenter(this.ship.getLocation().x + 100, this.ship.getLocation().y + 100);
-
-    }
-}
-
-
 class AfterImageEffect extends BaseEveryFrameCombatPlugin {
     private final ShipAPI ship;
     private final Logger log = Global.getLogger(AfterImageEffect.class);
