@@ -79,7 +79,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public void maybeInitiateJump(List<InputEventAPI> events) {
         if (!this.getJumpKeyPressed(events)) return;
         if (this.jumper == null) return;
-        getLogger().info("successfully triggered jump with keypress");
         initiateJump2();
     }
 
