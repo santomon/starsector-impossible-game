@@ -206,7 +206,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
         }
         if (result) {
-            getLogger().info("Jump Key Pressed!");
         }
         return result;
     }
