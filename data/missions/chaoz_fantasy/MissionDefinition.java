@@ -10,18 +10,21 @@ import com.fs.starfarer.api.mission.MissionDefinitionAPI;
 import com.fs.starfarer.api.mission.MissionDefinitionPlugin;
 import santomon.ImpossibleGame.ImpossibleGameLevelPlugin;
 
+import static santomon.ImpossibleGame.IGMisc.IDs.IG_HERMES_VARIANT_ID;
+import static santomon.ImpossibleGame.IGMisc.IDs.IG_KITE_VARIANT_ID;
+
 public class MissionDefinition implements MissionDefinitionPlugin {
 
 	public void defineMission(MissionDefinitionAPI api) {
 
-		api.initFleet(FleetSide.PLAYER, "xdd", FleetGoal.ATTACK, false, 5);
-		api.initFleet(FleetSide.ENEMY, "FUMO", FleetGoal.ATTACK, true);
+		api.initFleet(FleetSide.PLAYER, "Square", FleetGoal.ATTACK, false, 5);
+		api.initFleet(FleetSide.ENEMY, "Spikey Boi", FleetGoal.ATTACK, true);
 
 		api.setFleetTagline(FleetSide.PLAYER, "Player");
 		api.setFleetTagline(FleetSide.ENEMY, "Spikey Bois");
 
-		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, "impossible_hermes_variant", FleetMemberType.SHIP, "xdd PlayerShip", true);
-		api.addToFleet(FleetSide.ENEMY, "impossible_hermes_variant", FleetMemberType.SHIP, "FUMO EnemyFlagShip", true);
+		FleetMemberAPI hermes = api.addToFleet(FleetSide.PLAYER, IG_HERMES_VARIANT_ID, FleetMemberType.SHIP, "Square", true);
+		api.addToFleet(FleetSide.ENEMY, IG_KITE_VARIANT_ID, FleetMemberType.SHIP, "Spikey Boi", true);
 
 		float width = 4000f;
 		float height = 4000f;
