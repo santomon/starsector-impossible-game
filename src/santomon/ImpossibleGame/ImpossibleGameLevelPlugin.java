@@ -62,7 +62,7 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
         }
 
         if (!combatEngineAPI.isPaused() && isInTheoryPaused) {
-            soundPlayer.pauseCustomMusic();
+            soundPlayer.resumeCustomMusic();
             isInTheoryPaused = false;
             return;
         }
