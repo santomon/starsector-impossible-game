@@ -8,8 +8,9 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import java.awt.Color;
+
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector2f;
-import lunalib.lunaSettings.LunaSettings;
 
 import java.util.*;
 import java.util.List;
@@ -20,9 +21,16 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public final int[] gravityData;
     private Vector2f safeSpot;
     public final HashMap<Integer, Color> colorData;
-    public final JumpSettings jumpSettings;
-    public final KeyBindings keyBindings;
-    public final String jumperVariantID;
+    public final JumpSettings jumpSettings = new JumpSettings(
+            4000,
+            9111.2f,
+            100000,
+            30
+            );
+    public final KeyBindings keyBindings = new KeyBindings(new ArrayList<>() {{
+        add(Keyboard.KEY_E);
+    }});
+    public final String jumperVariantID = IGMisc.LunaLibKeys.IG_HERMES_VARIANT_ID;
 
     public ImpossibleGameLevelEngine impossibleGameLevelEngine;
     public ShipAPI jumper;
@@ -51,32 +59,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         this.levelData = loadLevelData(levelName);
         this.gravityData = loadGravityData(levelName);
         this.colorData = loadColorData(levelName);
-        this.jumpSettings = new JumpSettings(
-                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.GRAVITY_FORCE_ID),
-                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.JUMP_FORCE_ID),
-                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.MAX_JUMP_VELOCITY_ID),
-                LunaSettings.getFloat(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.GROUND_TOLERANCE_ID)
-        );
-
-        this.keyBindings = new KeyBindings(
-                safelyRetrieveKeycodesFromLunalib(new ArrayList<String>() {{
-                    add(IGMisc.LunaLibKeys.JUMP_KEY_ID);
-                    add(IGMisc.LunaLibKeys.ALTERNATIVE_JUMP_KEY_ID);
-                }}),
-                safelyRetrieveKeycodesFromLunalib(
-                        new ArrayList<String>() {{
-                            add(IGMisc.LunaLibKeys.QUICK_RESTART_KEY_ID);
-                        }}
-                )
-        );
-
-        String maybeJumperVariantID = LunaSettings.getString(IGMisc.LunaLibKeys.IG_MOD_ID, IGMisc.LunaLibKeys.JUMPER_VARIANT_ID);
-        if (maybeJumperVariantID == null || !Global.getSettings().doesVariantExist(maybeJumperVariantID)) {
-            this.jumperVariantID = IGMisc.LunaLibKeys.IG_HERMES_VARIANT_ID;
-        } else {
-            this.jumperVariantID = maybeJumperVariantID;
-        }
-
     }
 
 
@@ -162,7 +144,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
        this.jumper.setShipAI(new DontMoveAI());
        this.jumper.addListener(new DamageWhenOutOfBounds(this.jumper));
 
-       this.jumpScript = new JumpScript(this.jumper, groundShipIDs, this.jumpSettings, this.keyBindings.jumpKeys);
+       this.jumpScript = new JumpScript(this.jumper, groundShipIDs, this.jumpSettings);
        this.impossibleGameLevelEngine.getJumpScripts().add(this.jumpScript);
        engine.addPlugin(this.jumpScript);
        if (this.impossibleGameLevelEngine != null) {
@@ -243,15 +225,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         }
     }
 
-    public static List<Integer> safelyRetrieveKeycodesFromLunalib(List<String> ids) {
-        List<Integer> keycodes = new ArrayList<>();
-        for (String id : ids) {
-            Integer value = LunaSettings.getInt(IGMisc.LunaLibKeys.IG_MOD_ID, id);
-            if (value == null || value == 0) continue;
-            keycodes.add(value);
-        }
-        return keycodes;
-    }
     public static Logger getLogger() {
         Logger logger = Global.getLogger(ImpossibleGameLevelPlugin.class);
         logger.setLevel(Level.INFO);

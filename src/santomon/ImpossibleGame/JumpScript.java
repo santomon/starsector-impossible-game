@@ -28,11 +28,10 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
 
     public static final float initialVelocity = 600f;
 
-    public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings, List<Integer> jumpKeys) {
+    public JumpScript(ShipAPI jumper, List<String> groundShipIDs, JumpSettings settings) {
         this.groundShipIDs = groundShipIDs;
         this.jumper = jumper;
         this.jumpSettings = settings;
-        this.jumpKeys = jumpKeys;
         this.jumper.getMutableStats().getTimeMult().modifyMult("impossible_timemult", timeMultiplier);
     }
 
@@ -204,12 +203,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
             if (event.getEventType() == InputEventType.MOUSE_UP && event.getEventValue() == 0) {
                 this.isHoldingMouse = false;
                 result = false;
-            }
-
-            for (Integer jumpKey : this.jumpKeys) {
-                if (event.getEventValue() == jumpKey) {
-                    result = true;
-                }
             }
 
         }
