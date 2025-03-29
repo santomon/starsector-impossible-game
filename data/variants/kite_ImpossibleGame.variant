@@ -7,7 +7,7 @@
     "hullMods": ["missleracks"],
     "permaMods": ["missleracks"],
     "sMods": [],
-    "variantId": "kite_ImpossibleGame",
+    "variantId": "impossible_kite_variant",
     "weaponGroups": [
         {
             "autofire": false,

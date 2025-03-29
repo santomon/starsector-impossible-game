@@ -1,6 +1,7 @@
 package santomon.ImpossibleGame;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SoundPlayerAPI;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -81,6 +82,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         lockFlagShips();
      }
 
+
     private void maybeStopMusic() {
         // // for some reason this causes freeze lol
 //        if (Global.getCombatEngine().getPlayerShip() == null) {
@@ -107,7 +109,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
                 engine.getMapHeight() / 2 - 500
         );
 
-        Global.getSoundPlayer().playCustomMusic(1, 1, "chaoz_fantasy");
+        Global.getSoundPlayer().playCustomMusic(1, 1, IGMisc.IDs.IG_CHAOZ_FANTASY_OST);
+        SoundPlayerAPI soundPlayer = Global.getSoundPlayer();
         engine.addPlugin(this.impossibleGameLevelEngine);
 
         this.killPlayerWhenAnyPlayerDamageIsTakenScript = new KillPlayerWhenAnyPlayerDamageIsTaken();

@@ -20,8 +20,10 @@ public class IGMisc {
 
     public static class IDs {
         public static final String IG_WARDEN_ID = "warden_Defense";
-        public static final String IG_KITE_VARIANT_ID = "kite_ImpossibleGame";
+        public static final String IG_KITE_VARIANT_ID = "impossible_kite_variant";
         public static final String IG_HERMES_VARIANT_ID = "impossible_hermes_variant";
+
+        public static final String IG_CHAOZ_FANTASY_OST = "impossible_chaoz_fantasy_ost";
 
     }
 
