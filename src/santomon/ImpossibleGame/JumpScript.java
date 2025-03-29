@@ -16,7 +16,6 @@ public class JumpScript extends BaseEveryFrameCombatPlugin {
     public final List<String> groundShipIDs;
     public final ShipAPI jumper;
     public final JumpSettings jumpSettings;
-    public final List<Integer> jumpKeys;
     private boolean gravityIsReversed = false;
     private boolean isHoldingMouse = false;
 
