@@ -23,6 +23,7 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
 
     final String soundTrackId;
     boolean hasCalledFakeInit = false;
+    boolean isInTheoryPaused = false;
 
     ImpossibleMusicHandler(String levelName) {
         this.soundTrackId = "impossible_" + levelName + "_ost";
@@ -38,6 +39,7 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
             fakeInit();
             hasCalledFakeInit = true;
         }
+        maybePauseOrUnpauseMusic();
     }
 
     public void restart() {
@@ -49,15 +51,21 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
     }
 
 
-    private void maybeStopMusic() {
-        // // for some reason this causes freeze lol
-//        if (Global.getCombatEngine().getPlayerShip() == null) {
-//            Global.getSoundPlayer().pauseCustomMusic();
-//            return;
-//        }
-//        if (!Global.getCombatEngine().getPlayerShip().isAlive()) {
-//            Global.getSoundPlayer().pauseCustomMusic();
-//        }
+    private void maybePauseOrUnpauseMusic() {
+        SoundPlayerAPI soundPlayer = Global.getSoundPlayer();
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+
+        if (combatEngineAPI.isPaused() && !isInTheoryPaused) {
+            soundPlayer.pauseCustomMusic();
+            isInTheoryPaused = true;
+            return;
+        }
+
+        if (!combatEngineAPI.isPaused() && isInTheoryPaused) {
+            soundPlayer.pauseCustomMusic();
+            isInTheoryPaused = false;
+            return;
+        }
     }
 }
 
