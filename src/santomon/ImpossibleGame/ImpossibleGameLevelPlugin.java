@@ -43,6 +43,7 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
             hasCalledFakeInit = true;
         }
         maybePauseOrUnpauseMusic();
+        maybeStopMusic();
     }
 
     public void restart() {
