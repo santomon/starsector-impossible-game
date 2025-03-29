@@ -257,7 +257,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
             if (Objects.equals(ship.getId(), engine.getPlayerShip().getId())) continue;
             engine.removeEntity(ship);
         }
-        this.hasCalledFakeInit = false;
+        fakeInit(engine);
     }
 
     public static ShipAPI getEnemyFlagship() {
