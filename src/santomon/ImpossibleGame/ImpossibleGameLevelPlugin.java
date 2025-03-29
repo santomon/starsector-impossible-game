@@ -24,6 +24,7 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
     final String soundTrackId;
     boolean hasCalledFakeInit = false;
     boolean isInTheoryPaused = false;
+    boolean isStopped = false;
 
     ImpossibleMusicHandler(String levelName) {
         this.soundTrackId = "impossible_" + levelName + "_ost";
@@ -31,6 +32,8 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
 
     public void fakeInit() {
         play();
+        isInTheoryPaused = false;
+        isStopped = false;
     }
 
     @Override
@@ -56,6 +59,8 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
         SoundPlayerAPI soundPlayer = Global.getSoundPlayer();
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
 
+        if (this.isStopped) return;
+
         if (combatEngineAPI.isPaused() && !isInTheoryPaused) {
             soundPlayer.pauseCustomMusic();
             isInTheoryPaused = true;
@@ -68,6 +73,21 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
             return;
         }
     }
+
+    private void maybeStopMusic() {
+        CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
+
+        if (combatEngineAPI.isCombatOver() && !isStopped) {
+            Global.getSoundPlayer().pauseCustomMusic();
+            isStopped = true;
+            return;
+
+        }
+
+
+    }
+
+
 }
 
 public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
@@ -76,12 +96,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public final int[] gravityData;
     private Vector2f safeSpot;
     public final HashMap<Integer, Color> colorData;
-    public final JumpSettings jumpSettings = new JumpSettings(
-            4000,
-            9111.2f,
-            100000,
-            30
-    );
+    public final JumpSettings jumpSettings = new JumpSettings(4000, 9111.2f, 100000, 30);
     public final KeyBindings keyBindings = new KeyBindings(new ArrayList<>() {{
         add(Keyboard.KEY_E);
     }});
@@ -134,11 +149,11 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         // maybe quickrestart
         if (this.quickRestartPressed(events)) {
             this.cleanUp();
+            this.impossibleMusicHandler.restart();
         }
 
         lockFlagShips();
     }
-
 
 
     @Override
@@ -153,10 +168,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
         engine.getFleetManager(1).setSuppressDeploymentMessages(true);
 
         this.impossibleGameLevelEngine = new ImpossibleGameLevelEngine(this.levelData, this.gravityData, this.colorData, objectLookUpTable);
-        this.safeSpot = new Vector2f(
-                engine.getMapWidth() / 2 - 500,
-                engine.getMapHeight() / 2 - 500
-        );
+        this.safeSpot = new Vector2f(engine.getMapWidth() / 2 - 500, engine.getMapHeight() / 2 - 500);
 
         SoundPlayerAPI soundPlayer = Global.getSoundPlayer();
         engine.addPlugin(this.impossibleGameLevelEngine);
