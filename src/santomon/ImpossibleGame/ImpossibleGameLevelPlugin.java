@@ -52,6 +52,7 @@ class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
 
 
     private void maybePauseOrUnpauseMusic() {
+        // pausing causes the music to desync due to the built in fade out lmao.
         SoundPlayerAPI soundPlayer = Global.getSoundPlayer();
         CombatEngineAPI combatEngineAPI = Global.getCombatEngine();
 
