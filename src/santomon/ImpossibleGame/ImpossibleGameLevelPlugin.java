@@ -22,14 +22,22 @@ import java.util.List;
 class ImpossibleMusicHandler extends BaseEveryFrameCombatPlugin {
 
     final String soundTrackId;
+    boolean hasCalledFakeInit = false;
 
     ImpossibleMusicHandler(String levelName) {
         this.soundTrackId = "impossible_" + levelName + "_ost";
     }
 
-    @Override
-    public void init(CombatEngineAPI engine) {
+    public void fakeInit() {
         play();
+    }
+
+    @Override
+    public void advance(float amount, List<InputEventAPI> events) {
+        if (!hasCalledFakeInit) {
+            fakeInit();
+            hasCalledFakeInit = true;
+        }
     }
 
     public void restart() {
