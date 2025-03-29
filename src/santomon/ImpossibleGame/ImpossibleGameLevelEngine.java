@@ -63,7 +63,7 @@ public class ImpossibleGameLevelEngine extends BaseEveryFrameCombatPlugin {
         this.gravityData = gravityData;
         this.colorData = colorData;
 
-        this.availableEntitiesForSpawning = new HashMap<String, List<ShipAPI>>() {{
+        this.availableEntitiesForSpawning = new HashMap<>() {{
             for (String entityID : objectLookUpTable.values()) {
                 if (entityID != null) {
                     put(entityID, new ArrayList<ShipAPI>());
