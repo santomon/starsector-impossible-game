@@ -110,7 +110,6 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
 
         this.impossibleMusicHandler = new ImpossibleMusicHandler(levelName);
-        Global.getCombatEngine().addPlugin(this.impossibleMusicHandler);
 
     }
 
@@ -139,6 +138,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     }
 
     public void fakeInit(CombatEngineAPI engine) {
+        Global.getCombatEngine().addPlugin(this.impossibleMusicHandler);
+
         engine.getFleetManager(0).setSuppressDeploymentMessages(true);
         engine.getFleetManager(1).setSuppressDeploymentMessages(true);
 
