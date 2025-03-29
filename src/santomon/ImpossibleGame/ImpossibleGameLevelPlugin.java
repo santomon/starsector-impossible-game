@@ -30,7 +30,7 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
     public final KeyBindings keyBindings = new KeyBindings(new ArrayList<>() {{
         add(Keyboard.KEY_E);
     }});
-    public final String jumperVariantID = IGMisc.LunaLibKeys.IG_HERMES_VARIANT_ID;
+    public final String jumperVariantID = IGMisc.IDs.IG_HERMES_VARIANT_ID;
 
     public ImpossibleGameLevelEngine impossibleGameLevelEngine;
     public ShipAPI jumper;
@@ -40,8 +40,8 @@ public class ImpossibleGameLevelPlugin extends BaseEveryFrameCombatPlugin {
 
     public static final HashMap<Integer, String> objectLookUpTable = new HashMap<Integer, String>() {{
         put(0, null);
-        put(1, IGMisc.LunaLibKeys.IG_WARDEN_ID);  // block
-        put(2, IGMisc.LunaLibKeys.IG_KITE_VARIANT_ID);  // spikes
+        put(1, IGMisc.IDs.IG_WARDEN_ID);  // block
+        put(2, IGMisc.IDs.IG_KITE_VARIANT_ID);  // spikes
         put(3, "radiant_Standard");  // victory
         put(9, null);  // some other null markers
     }
