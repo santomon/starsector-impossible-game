@@ -9,9 +9,5 @@
   	"jars":["jars/ImpossibleGame.jar"],
   	"modPlugin":"santomon.ImpossibleGame.ImpossibleGameModPlugin",
 	  	"dependencies": [
-			{
-				"id": "lunalib",
-				"name": "LunaLib",
-			}
 		]
 }
